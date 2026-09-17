@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "pet",
+  "description": "Only the local pet window may call its typed Rust dispatcher.",
+  "windows": [
+    "pet"
+  ],
+  "permissions": [
+    "allow-pet-command",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten"
+  ]
+}

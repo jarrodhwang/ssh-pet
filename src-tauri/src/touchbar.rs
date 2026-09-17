@@ -40,7 +40,12 @@ pub fn refresh(app: &tauri::AppHandle) {
             .connections
             .iter()
             .find(|item| Some(&item.id) == config.favorite_id.as_ref());
-        let enabled = favorite.is_some();
+        let enabled = app
+            .state::<super::AppState>()
+            .core
+            .pet()
+            .map(|v| v.can_connect)
+            .unwrap_or(false);
         let title = favorite
             .map(|item| format!("Connect to {}", item.name))
             .unwrap_or_else(|| "Add a connection".into());

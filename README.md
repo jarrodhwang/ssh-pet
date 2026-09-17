@@ -1,97 +1,124 @@
 # Droplet
 
-A small water-drop desktop pet that keeps your SSH connections close. Built with **Rust, Tauri 2, TypeScript, and a small native AppKit bridge**.
+A water-drop desktop pet that keeps SSH connections close. **Tauri 2 stays the desktop shell; Rust owns the application; React TSX owns the interface.** macOS first, with Windows and Linux terminal adapters planned.
 
-![Droplet browser preview with sample connection details](artifacts/droplet-preview.png)
+![Droplet with sample connection details](artifacts/droplet-preview.png)
 
 ## Use it on macOS
 
-Open `Droplet.app`. On its first launch, Droplet imports the plain SSH invocation in `~/Desktop/zbook-studio-ssh.command`, if that file exists. It reads connection details; it never executes the command file. Your original launcher stays intact.
+Open `Droplet.app`. On first launch, Droplet imports the plain SSH invocation in `~/Desktop/zbook-studio-ssh.command`, if present. It reads connection details without executing or modifying that file.
 
-- **Menu bar:** click the drop for a direct connection to your favorite, the connection window, pet controls, or Quit.
-- **Desktop pet:** click to open connections, double-click to connect to your favorite, or drag to move it. Its position is saved. The menu includes **Bring pet back to screen** if a monitor layout changes.
-- **Connection window:** add, edit, remove, or favorite a connection. You can also paste a plain `ssh` command with `-i` and `-p` options. Hostnames, IP addresses, and SSH config aliases are supported. The saved port is explicitly passed to SSH (22 by default).
-- **Touch Bar:** on supported Macs, Droplet provides an app button and a favorite-connection button while a Droplet window is active. This uses public `NSTouchBar` APIs; it is not a persistent Control Strip replacement.
-- **Preferences:** opt into launching at login. Closing the connection window leaves Droplet running; **Quit Droplet** in the menu bar exits it. Escape hides the window, and Command-N adds a connection.
-- **Quiet movements:** disable pet animation. System reduced-motion preferences are also respected.
+- **Menu bar:** open connections, connect to your favorite, pause new SSH launches, show/hide the pet, or quit.
+- **Desktop pet:** click for connections, double-click for your favorite, drag to move. Rust keeps its position within available display bounds. The pet reflects opening, checking, paused, and attention states.
+- **Connection window:** add, edit, remove, favorite, search, or import a plain SSH command with `-i` and `-p`. SSH aliases are supported for launching. The saved port is always explicit, defaulting to 22.
+- **Check:** inspect explicit key permissions and direct DNS/TCP/SSH-greeting reachability. Cancel a running check. These checks never authenticate; aliases and jump hosts can work even when a direct check fails.
+- **Security:** pause launches from every entry point, inspect the enforced policy, and view the last 200 local activity events. The pause persists across restarts and leaves existing sessions running.
+- **Touch Bar:** a favorite shortcut while Droplet is active on supported Macs, using public `NSTouchBar` APIs. It is not a persistent Control Strip replacement.
+- **Preferences:** opt into starting at login or reduce animation. Closing the window keeps the pet/menu bar available. Escape hides the window; Command-N opens a connection form.
 
-On the first connection, macOS may ask you to allow Droplet to control Terminal. Terminal handles passwords, SSH key passphrases, first-time host verification, and connection errors. Droplet reports that Terminal opened; it does not claim to monitor an authenticated session.
+Terminal handles passwords, passphrases, host-key prompts, and session errors. macOS may request Automation permission the first time Droplet opens Terminal. A VPN such as Tailscale must be available if your destination needs it. “Terminal opened” does not mean “SSH authenticated.”
 
-If the destination needs a VPN such as Tailscale, that network still needs to be available.
+## What is in Rust
+
+This repository is designed for Rust practice through useful application features:
+
+| Crate / area | Responsibility and Rust concepts |
+| --- | --- |
+| `crates/droplet-core/src/model.rs` | Validation and strict import parsing; data modeling, iterators, fallible parsing. |
+| `crates/droplet-core/src/service.rs` | CRUD, favorites, search, view models, launch pause, cooldowns, history; ownership, `Arc`, mutexes, state transitions, RAII operation guards. |
+| `crates/droplet-core/src/security.rs` | Window authorization, key metadata checks, fixed launch policy, shell quoting. |
+| `crates/droplet-core/src/storage.rs` | Bounded reads, permission checks, atomic writes, corruption preservation. |
+| `crates/droplet-core/src/diagnostics.rs` | Tokio sockets, deadlines, cancellation, a bounded blocking DNS resolver, protocol inspection. |
+| `crates/droplet-core/src/protocol.rs` | Serde request enums and view models; generated TypeScript contracts using `ts-rs`. |
+| `crates/droplet-cli` | Read-only connection inspection and diagnostics, type export, isolated UI-test transport. |
+| `src-tauri/src` | OS adapters: windows, menu bar, Terminal, login settings, and Touch Bar bridge. |
+| `src/*.tsx` | Rendering, accessibility, raw form text, dialogs, and pointer gestures. |
+
+```mermaid
+flowchart LR
+  UI[React TSX] -->|Typed user request| IPC[Tauri window authorization]
+  IPC --> Core[Rust core]
+  Core -->|View model| UI
+  Core --> Storage[Private local files]
+  Core --> Diagnostics[Bounded diagnostics]
+  Core -->|Validated launch lease| OS[Terminal adapter]
+  CLI[Rust CLI] -->|Shared policy and diagnostics| Core
+```
+
+There is no second validation/favorites/SSH implementation in TypeScript. The frontend renders backend decisions such as `canConnect`, `isFavorite`, connection labels, diagnostic results, and pet mood. UI state stays in React. OS-specific integration stays in Rust, with a small Objective-C AppKit bridge for Touch Bar.
 
 ## Develop and build
 
-Requirements: macOS 11+, Xcode Command Line Tools, Node.js 22.12+ (or current LTS), and Rust 1.98+. The first build was verified on Apple Silicon with Rust 1.98.1 and Node.js 26.4.
+Requirements: macOS 11+, Xcode Command Line Tools, Node.js 22.12+ or a current release, and Rust 1.98+. Verified on Apple Silicon with Rust 1.98.1 and Node.js 26.4.
 
 ```sh
-# If Rust was installed with rustup and isn't on your PATH:
-source "$HOME/.cargo/env"
-
+source "$HOME/.cargo/env" # if rustup's bin directory is not on PATH
 npm ci
 npm run app:dev
 
-# Produce a standalone macOS app:
+# Standalone macOS bundle
 npm run app:build
 ```
 
-The app is produced at `src-tauri/target/release/bundle/macos/Droplet.app`. Copy it to `~/Applications` or `/Applications` before enabling launch at login, so its location stays stable.
+The bundle is at `src-tauri/target/release/bundle/macos/Droplet.app`. Install it in `~/Applications` or `/Applications` before enabling launch at login. The workspace uses the same target directory for all Rust crates.
 
-`npm run dev` runs a **browser preview** using sample connection details. Browser preview mode never opens SSH, changes login items, or reads your real connections.
+`npm run dev` shows a **read-only browser preview** with sample data generated by Rust. It does not read your live connections, run SSH, or maintain a simulated frontend database. Use the desktop app for interactive use.
+
+```sh
+# After changing Rust protocol types
+npm run types
+npm run types:check
+
+# Refresh the static sample view models
+npm run preview:data
+
+# Rust tools using your saved configuration (read-only)
+cargo run -p droplet-cli -- list
+cargo run -p droplet-cli -- doctor "Zbook Studio"
+# Explicitly include a direct network probe
+cargo run -p droplet-cli -- doctor "Zbook Studio" --network
+```
+
+`doctor` defaults to local checks. It prints a JSON report and never starts an SSH session. No daemon, plugin engine, or custom SSH implementation is needed for these features.
 
 ## Verification
 
 ```sh
+cargo fmt --all --check
+cargo clippy --workspace --all-targets -- -D warnings
+cargo test --workspace
+npm run types:check
 npm run build
 npm test
-cargo test --manifest-path src-tauri/Cargo.toml
-cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-cargo fmt --manifest-path src-tauri/Cargo.toml --check
 ```
 
-The Playwright suite uses installed Google Chrome. It exercises connection workflows, favorites, cancellation, escaped rendering, pet controls, drag-versus-click behavior, minimum-window layout, and WCAG A/AA automated checks. Rust tests cover strict launcher parsing, option rejection, key-path expansion, shell injection resistance, atomic settings replacement, private file permissions, and corruption handling.
+Playwright uses installed Google Chrome. Each UI test runs a fresh Rust CLI process with a temporary data directory and sample connections. The actual core handles CRUD, validation, favorites, search, launch pause, and local diagnostics. The development transport cannot launch Terminal or inspect real credentials; it is removed from production JavaScript.
 
-Native checks require an unlocked Mac: inspect the transparent pet and menu icon; move the pet; close and reopen the main window; launch Terminal from a connection; quit/reopen and confirm position/preferences persist. Touch Bar behavior needs supported hardware or Xcode's simulator. Automated accessibility checks do not replace VoiceOver or hardware testing.
+Rust tests cover injection rejection, window authorization, explicit key permissions, OpenSSH expansion tokens, effective policy against a controlled SSH config, storage corruption/symlinks/size limits, launch guards and cooldowns, old-settings migration, cancellation, stale results, and stalled network responses. UI tests cover workflows, unsafe imports, Rust validation, lock state across renderer reloads, escaped rendering, pet gestures, minimum-window layout, and automated WCAG A/AA checks.
 
-## Data and security
+Native checks still require an unlocked Mac: inspect menu and transparent pet, drag across monitors, launch Terminal, and confirm login behavior. Touch Bar testing needs supported hardware or a simulator. Automated browser checks do not establish VoiceOver or native-platform correctness.
 
-Connection details and pet preferences are stored in:
+## Protection and limits
 
-```text
-~/Library/Application Support/com.jarrod.droplet/connections.json
-```
+The new launch policy keeps host-key prompts on, disables agent/X11 forwarding, configured port forwards, `LocalCommand`, and configured remote commands. It checks explicit key-file ownership and permissions, limits repeated launches, and gives the pet fewer privileges than the main window.
 
-The file is written atomically with owner-only permissions on macOS. No passwords or private-key contents are stored or read by Droplet. Only key paths are retained. The initial import is specific to the named Desktop launcher; other files are not scanned. There is no telemetry, remote content, or network polling.
+Settings and local activity live in `~/Library/Application Support/com.jarrod.droplet`. Files are bounded, written atomically, and private on macOS. Invalid files are preserved and block mutations until repaired. Old connection settings remain compatible. No key contents or passwords are read or stored.
 
-The frontend receives narrow Rust commands; it has no generic filesystem or shell plugin. Host and username inputs are validated. Shell arguments are quoted, and the invocation is passed to a fixed AppleScript through argv. Existing SSH configuration and host-key verification stay in effect. Unsupported script bodies, remote commands, and arbitrary SSH flags are rejected by the importer. Advanced SSH behavior belongs in your own SSH config.
+**SSH config remains trusted local code**, including `ProxyCommand` and `Match exec`. The pause is a convenience lock, not authentication. Activity history is local and not tamper-proof. See [SECURITY.md](SECURITY.md) for exact guarantees, compatibility trade-offs, failure behavior, and known limits.
 
-If an existing settings file cannot be read or validated, the app displays the error and refuses to overwrite it. Repair or move that file and restart to recover.
-
-## Structure and platform roadmap
-
-| Area | Files |
-| --- | --- |
-| Connections, preferences, windows, menu bar | `src-tauri/src/lib.rs` |
-| Portable connection model and safe import | `src-tauri/src/model.rs` |
-| Atomic local persistence | `src-tauri/src/storage.rs` |
-| Terminal launch adapter and quoting | `src-tauri/src/terminal.rs` |
-| macOS Touch Bar bridge | `src-tauri/src/touchbar.rs`, `src-tauri/native/touchbar.m` |
-| Interface, pet, browser preview | `src/main.ts`, `src/art.ts`, `src/bridge.ts`, `src/style.css` |
-
-**macOS is the implemented launch target in 0.1.** The model, storage, Tauri windows, and interface are structured for reuse. Windows and Linux terminal launch adapters are intentionally left for a later version, and have not been built or tested. Non-macOS builds return an explicit unsupported-launch message. Linux window-manager and system-tray differences will need native testing.
-
-The transparent macOS pet uses Tauri's `macos-private-api` feature. This local app is suitable for direct distribution; the current transparent-window implementation is not compatible with Mac App Store review. Public distribution also needs proper signing/notarization. See [Tauri's window configuration](https://v2.tauri.app/reference/config/#windowconfig) and [Apple's Touch Bar documentation](https://developer.apple.com/documentation/appkit/nstouchbar).
+macOS is the implemented launch target. Windows/Linux adapters and equivalent Windows ACL checks remain future work. The transparent pet uses Tauri's macOS private API feature; the current implementation is intended for direct distribution, not Mac App Store review. This local bundle is ad-hoc signed. Public distribution needs Developer ID signing and notarization.
 
 ## Practical quality decisions
 
 | Quality | Decision and trade-off |
 | --- | --- |
-| Functional suitability | Three entry points lead to the same saved favorite and Terminal launch operation. Session state stays in Terminal. |
-| Reliability | Atomic saves, visible errors, duplicate-launch protection, single-instance behavior, and a pet-position reset. Corrupt settings are preserved. |
-| Performance | System webview, small frontend, CSS/SVG animation, and no polling. A second small webview provides the floating pet; quiet mode removes animation. |
-| Maintainability | Model, persistence, and terminal adapter are separated; AppKit is isolated behind a macOS build gate. Lockfiles are included. |
-| Compatibility | Uses installed Terminal and OpenSSH, including SSH config and agent support. Touch Bar gracefully has no effect on unsupported Macs. |
-| Security | No key-content handling; validated input, quoted command arguments, restrictive CSP, and minimal webview permissions. |
-| Usability | Favorites, keyboard access, visible errors, reversible pet visibility, destructive-action confirmation, and reduced motion. |
-| Portability | Rust and Tauri provide shared foundations. Native terminal adapters and platform validation remain explicit future work. |
+| Functional suitability | All entry points use one saved favorite and launch policy. Terminal owns the session. |
+| Reliability | Atomic settings replacement, bounded operations, cancellation guards, explicit errors, and stale-result rejection. |
+| Performance | No periodic network polling. One diagnostic at a time; bounded DNS/TCP/banner work and history. React adds frontend weight in exchange for clear TSX components. |
+| Maintainability | Portable core, generated contracts, thin OS/transport layers, and UI tests that reuse real Rust behavior. |
+| Compatibility | Uses installed OpenSSH, agent, and SSH aliases. Enforced forwarding/remote-command restrictions can change behavior for advanced SSH configs. |
+| Security | Least-privilege pet, Rust authorization and validation, explicit SSH policy, private storage, no secret-content handling. |
+| Usability | Quick favorite access, visible paused state, cancellation, form errors, destructive-action confirmation, and reduced motion. |
+| Portability | Cross-platform core/CLI foundations; native launch, permissions, window-manager behavior, and packaging still need platform-specific work. |
 
-In use, the favorite shortcut minimizes steps, the pet can be hidden when distracting, settings survive restarts, and existing SSH safeguards remain intact. Offline or unavailable hosts are handled visibly by Terminal. Multi-monitor recovery is available from the menu bar. Touch Bar controls supplement the mouse and keyboard interface.
+For quality in use, favorites reduce the steps to connect; keyboard access and reduced motion support different interaction needs. Bounded diagnostics give useful feedback on slow/offline networks without claiming successful authentication. Recoverable pet placement supports monitor changes. Local storage and explicit launch controls reduce accidental actions while keeping the app small enough to understand and extend.

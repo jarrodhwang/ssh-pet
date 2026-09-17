@@ -199,3 +199,32 @@ html:has(.pet-window) { background: transparent !important; height: 100%; overfl
   .pet-preview { width: 160px; }
   .pet-preview .droplet-art { width: 160px; }
 }
+
+.connection-actions { display: flex; align-items: center; gap: 16px; }
+.connection-actions .text-button { font-size: 10px; }
+.pause-banner { display: flex; gap: 8px; align-items: center; background: #edf4f8; border: 1px solid #d8e6ee; border-radius: 7px; padding: 10px 12px; color: #375b70; font-size: 11px; margin-top: 14px; }
+.pause-banner .text-button { margin-left: auto; }
+.diagnostic-report { padding: 14px 18px; border-top: 1px solid #e6edf1; }
+.diagnostic-report h4 { margin: 0; font-size: 12px; }
+.report-caption, .history-note { font-size: 10px; color: #596f7d; margin: 6px 0 12px; line-height: 1.65; }
+.diagnostic-report ul, .protection-list, .activity-list { margin: 0; padding: 0; list-style: none; }
+.diagnostic-report li { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; font-size: 10px; }
+.diagnostic-report li strong { font-weight: 600; }
+.diagnostic-report li p { color: #596f7d; margin-top: 2px; }
+.check-status { display: inline-block; border-radius: 4px; padding: 2px 5px; background: #eaf0f5; color: #45677c; font-size: 8px; min-width: 46px; text-align: center; text-transform: uppercase; }
+.check-status.pass { background: #e8f3ee; color: #2f684c; }
+.check-status.warning { background: #fbf2df; color: #7f5d24; }
+.check-status.fail { background: #fbeae6; color: #944b40; }
+.protection-list { display: grid; grid-template-columns: 1fr; gap: 10px; font-size: 11px; color: #456a7c; margin-bottom: 18px; }
+.protection-list li { display: flex; gap: 8px; align-items: center; }
+.protection-list svg { color: #377859; }
+.history-heading { margin-top: 22px; margin-bottom: 0; }
+.activity-list { border-top: 1px solid #e1e8ed; }
+.activity-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e1e8ed; font-size: 10px; }
+.activity-list li > div { display: flex; flex-direction: column; gap: 2px; }
+.activity-list strong { font-weight: 500; text-transform: capitalize; }
+.activity-list span, .activity-list time { color: #596f7d; font-size: 9px; }
+.mood-opening .pet-status, .mood-checking .pet-status, .mood-locked .pet-status, .mood-attention .pet-status { display: block; }
+.mood-locked .drop-body { filter: saturate(.4); }
+.mood-attention .pet-status { color: #805a23; background: #fff4df; }
+.mood-checking .drop-body, .mood-opening .drop-body { animation-duration: 1.5s; }

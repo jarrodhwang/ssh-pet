@@ -1,12 +1,16 @@
-mod model;
-mod storage;
 mod terminal;
 #[cfg(target_os = "macos")]
 mod touchbar;
 
-use model::{Config, Connection, PetPosition};
-use serde::Serialize;
-use std::{path::PathBuf, sync::Mutex};
+use droplet_core::{
+    model::{Config, PetPosition, Preferences},
+    protocol::{MainRequest, PetReply, PetRequest, Reply},
+    security, AppError, Core, ErrorCode, Result,
+};
+use std::{
+    sync::{Arc, Mutex},
+    time::{Duration, Instant},
+};
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::TrayIconBuilder,
@@ -14,261 +18,228 @@ use tauri::{
 };
 use tauri_plugin_autostart::ManagerExt;
 
+struct Drag {
+    x: f64,
+    y: f64,
+    origin: PhysicalPosition<i32>,
+    scale: f64,
+    started: Instant,
+}
 struct AppState {
-    config: Mutex<Config>,
-    path: PathBuf,
-    home: PathBuf,
-    notice: Option<String>,
-    load_error: Option<String>,
-    launching: std::sync::atomic::AtomicBool,
+    core: Arc<Core>,
+    drag: Mutex<Option<Drag>>,
 }
-
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct Snapshot {
-    config: Config,
-    start_at_login: bool,
-    platform: &'static str,
-    notice: Option<String>,
-    load_error: Option<String>,
+fn os_error(error: impl std::fmt::Display) -> AppError {
+    AppError::new(ErrorCode::Process, error.to_string())
 }
-
-fn read_config(app: &tauri::AppHandle) -> Result<Config, String> {
-    app.state::<AppState>()
-        .config
-        .lock()
-        .map(|config| config.clone())
-        .map_err(|_| "Settings are temporarily unavailable.".into())
-}
-
-fn update_config(
-    app: &tauri::AppHandle,
-    update: impl FnOnce(&mut Config) -> Result<(), String>,
-) -> Result<(), String> {
-    let state = app.state::<AppState>();
-    if let Some(error) = &state.load_error {
-        return Err(error.clone());
-    }
-    let mut current = state
-        .config
-        .lock()
-        .map_err(|_| "Settings are temporarily unavailable.")?;
-    let mut next = current.clone();
-    update(&mut next)?;
-    storage::save(&state.path, &next)?;
-    *current = next;
-    drop(current);
-    let _ = app.emit("config-changed", ());
-    Ok(())
+fn read_config(app: &tauri::AppHandle) -> Result<Config> {
+    app.state::<AppState>().core.config()
 }
 
 #[tauri::command]
-fn get_snapshot(app: tauri::AppHandle) -> Result<Snapshot, String> {
-    let state = app.state::<AppState>();
-    Ok(Snapshot {
-        config: read_config(&app)?,
-        start_at_login: app
-            .autolaunch()
-            .is_enabled()
-            .map_err(|error| error.to_string())?,
-        platform: std::env::consts::OS,
-        notice: state.notice.clone(),
-        load_error: state.load_error.clone(),
-    })
+async fn main_command(
+    app: tauri::AppHandle,
+    window: tauri::WebviewWindow,
+    request: MainRequest,
+) -> Result<Reply> {
+    security::authorize(window.label(), "main")?;
+    dispatch(&app, request).await
 }
 
-#[tauri::command]
-fn save_connection(app: tauri::AppHandle, mut connection: Connection) -> Result<(), String> {
-    connection.name = connection.name.trim().into();
-    connection.host = connection.host.trim().into();
-    connection.username = connection.username.trim().into();
-    connection.identity_file = connection.identity_file.trim().into();
-    connection.validate()?;
-    update_config(&app, |config| {
-        if connection.id.is_empty() {
-            connection.id = uuid::Uuid::new_v4().to_string();
-            if config.connections.is_empty() {
-                config.favorite_id = Some(connection.id.clone());
+async fn dispatch(app: &tauri::AppHandle, request: MainRequest) -> Result<Reply> {
+    let core = app.state::<AppState>().core.clone();
+    match request {
+        MainRequest::View { query } => {
+            let mut view = core.view(&query)?;
+            view.start_at_login = app.autolaunch().is_enabled().map_err(os_error)?;
+            Ok(Reply::View(view))
+        }
+        MainRequest::Connect { id } => {
+            launch(app, Some(&id)).await?;
+            Ok(Reply::Done)
+        }
+        MainRequest::HideLauncher => {
+            if let Some(window) = app.get_webview_window("main") {
+                window.hide().map_err(os_error)?;
             }
-            config.connections.push(connection);
+            Ok(Reply::Done)
+        }
+        MainRequest::StartAtLogin { enabled } => {
+            if enabled {
+                app.autolaunch().enable()
+            } else {
+                app.autolaunch().disable()
+            }
+            .map_err(os_error)?;
+            let _ = app.emit("state-changed", ());
+            Ok(Reply::Done)
+        }
+        MainRequest::ResetPet => {
+            position_pet(app, None)?;
+            core.save_position(None)?;
+            let config = core.config()?;
+            preferences(
+                app,
+                Preferences {
+                    pet_visible: true,
+                    reduce_motion: config.reduce_motion,
+                },
+            )
+            .await
+        }
+        MainRequest::Preferences { preferences: value } => preferences(app, value).await,
+        request => core.execute(request, true).await,
+    }
+}
+async fn preferences(app: &tauri::AppHandle, value: Preferences) -> Result<Reply> {
+    let core = app.state::<AppState>().core.clone();
+    let previous = core.config()?;
+    let pet = app
+        .get_webview_window("pet")
+        .ok_or_else(|| os_error("The pet window is unavailable."))?;
+    if value.pet_visible {
+        pet.show()
+    } else {
+        pet.hide()
+    }
+    .map_err(os_error)?;
+    let result = core
+        .execute(MainRequest::Preferences { preferences: value }, true)
+        .await;
+    if result.is_err() {
+        let _ = if previous.pet_visible {
+            pet.show()
         } else {
-            let current = config
-                .connections
-                .iter_mut()
-                .find(|item| item.id == connection.id)
-                .ok_or("This connection no longer exists.")?;
-            *current = connection;
-        }
-        Ok(())
-    })?;
-    refresh_shortcuts(&app);
-    Ok(())
-}
-
-#[tauri::command]
-fn import_command(app: tauri::AppHandle, command: String, name: String) -> Result<(), String> {
-    if command.len() > 8192 {
-        return Err("The command is too long.".into());
-    }
-    let mut connection = model::parse_launcher(&command, name.trim())?;
-    connection.id.clear();
-    save_connection(app, connection)
-}
-
-#[tauri::command]
-fn delete_connection(app: tauri::AppHandle, id: String) -> Result<(), String> {
-    update_config(&app, |config| {
-        if !config.connections.iter().any(|item| item.id == id) {
-            return Err("This connection no longer exists.".into());
-        }
-        config.connections.retain(|item| item.id != id);
-        if config.favorite_id.as_deref() == Some(&id) {
-            config.favorite_id = config.connections.first().map(|item| item.id.clone());
-        }
-        Ok(())
-    })?;
-    refresh_shortcuts(&app);
-    Ok(())
-}
-
-#[tauri::command]
-fn set_favorite(app: tauri::AppHandle, id: String) -> Result<(), String> {
-    update_config(&app, |config| {
-        if !config.connections.iter().any(|item| item.id == id) {
-            return Err("This connection no longer exists.".into());
-        }
-        config.favorite_id = Some(id);
-        Ok(())
-    })?;
-    refresh_shortcuts(&app);
-    Ok(())
-}
-
-#[tauri::command]
-async fn connect(app: tauri::AppHandle, id: String) -> Result<(), String> {
-    let state = app.state::<AppState>();
-    let config = read_config(&app)?;
-    let connection = config
-        .connections
-        .into_iter()
-        .find(|item| item.id == id)
-        .ok_or("This connection no longer exists.")?;
-    if state
-        .launching
-        .swap(true, std::sync::atomic::Ordering::SeqCst)
-    {
-        return Err("A Terminal window is already opening. Give it a moment.".into());
-    }
-    let home = state.home.clone();
-    let _ = app.emit("launch-state", "opening");
-    let result = tauri::async_runtime::spawn_blocking(move || terminal::launch(&connection, &home))
-        .await
-        .map_err(|error| error.to_string())
-        .and_then(|value| value);
-    state
-        .launching
-        .store(false, std::sync::atomic::Ordering::SeqCst);
-    let _ = app.emit(
-        "launch-state",
-        if result.is_ok() { "opened" } else { "error" },
-    );
-    if let Err(error) = &result {
-        let _ = app.emit("app-error", error);
+            pet.hide()
+        };
     }
     result
 }
-
+async fn launch(app: &tauri::AppHandle, id: Option<&str>) -> Result<()> {
+    let core = app.state::<AppState>().core.clone();
+    let lease = core.begin_launch(id)?;
+    let result = terminal::launch(&lease.spec).await;
+    lease.finish(result)
+}
 fn connect_favorite(app: &tauri::AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
-        match read_config(&app).and_then(|config| {
-            config
-                .favorite_id
-                .ok_or("Add a connection to get started.".into())
-        }) {
-            Ok(id) => {
-                if let Err(error) = connect(app.clone(), id).await {
-                    report_error(&app, error);
-                }
-            }
-            Err(_) => {
-                let _ = show_launcher(app);
-            }
+        if let Err(error) = launch(&app, None).await {
+            report_error(&app, error);
         }
     });
 }
-
-fn report_error(app: &tauri::AppHandle, error: String) {
+fn report_error(app: &tauri::AppHandle, error: AppError) {
     let _ = show_launcher(app.clone());
-    let _ = app.emit("app-error", error);
+    let _ = app.emit_to("main", "app-error", error);
 }
-
-#[tauri::command]
-fn show_launcher(app: tauri::AppHandle) -> Result<(), String> {
+fn show_launcher(app: tauri::AppHandle) -> Result<()> {
     if let Some(window) = app.get_webview_window("main") {
-        window.unminimize().map_err(|error| error.to_string())?;
-        window.show().map_err(|error| error.to_string())?;
-        window.set_focus().map_err(|error| error.to_string())?;
+        window.unminimize().map_err(os_error)?;
+        window.show().map_err(os_error)?;
+        window.set_focus().map_err(os_error)?;
     }
     Ok(())
 }
 
 #[tauri::command]
-fn hide_launcher(app: tauri::AppHandle) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window("main") {
-        window.hide().map_err(|error| error.to_string())?;
-    }
-    Ok(())
-}
-
-#[tauri::command]
-fn set_preferences(
+async fn pet_command(
     app: tauri::AppHandle,
-    pet_visible: bool,
-    reduce_motion: bool,
-) -> Result<(), String> {
-    let pet = app
-        .get_webview_window("pet")
-        .ok_or("The pet window is unavailable.")?;
-    if pet_visible { pet.show() } else { pet.hide() }.map_err(|error| error.to_string())?;
-    if let Err(error) = update_config(&app, |config| {
-        config.pet_visible = pet_visible;
-        config.reduce_motion = reduce_motion;
-        Ok(())
-    }) {
-        if let Ok(config) = read_config(&app) {
-            let _ = if config.pet_visible {
-                pet.show()
-            } else {
-                pet.hide()
-            };
+    window: tauri::WebviewWindow,
+    request: PetRequest,
+) -> Result<PetReply> {
+    security::authorize(window.label(), "pet")?;
+    let core = app.state::<AppState>().core.clone();
+    match request {
+        PetRequest::View => return core.pet().map(PetReply::View),
+        PetRequest::OpenLauncher => show_launcher(app.clone())?,
+        PetRequest::ConnectFavorite => {
+            if let Err(error) = launch(&app, None).await {
+                report_error(&app, error.clone());
+                return Err(error);
+            }
         }
-        return Err(error);
+        PetRequest::BeginDrag { x, y } => {
+            check_coordinates(x, y)?;
+            let state = app.state::<AppState>();
+            *state.drag.lock().map_err(os_error)? = Some(Drag {
+                x,
+                y,
+                origin: window.outer_position().map_err(os_error)?,
+                scale: window.scale_factor().map_err(os_error)?,
+                started: Instant::now(),
+            });
+        }
+        PetRequest::Drag { x, y } => {
+            check_coordinates(x, y)?;
+            let state = app.state::<AppState>();
+            let drag = state.drag.lock().map_err(os_error)?;
+            let drag = drag
+                .as_ref()
+                .filter(|d| d.started.elapsed() < Duration::from_secs(120))
+                .ok_or_else(|| {
+                    AppError::new(ErrorCode::Forbidden, "Start dragging the pet first.")
+                })?;
+            let desired = PetPosition {
+                x: (f64::from(drag.origin.x) + (x - drag.x) * drag.scale).round() as i32,
+                y: (f64::from(drag.origin.y) + (y - drag.y) * drag.scale).round() as i32,
+            };
+            let position = clamp_position(&window, desired)?;
+            window
+                .set_position(PhysicalPosition::new(position.x, position.y))
+                .map_err(os_error)?;
+        }
+        PetRequest::EndDrag => {
+            let state = app.state::<AppState>();
+            let had_drag = state.drag.lock().map_err(os_error)?.take().is_some();
+            if had_drag {
+                let p = window.outer_position().map_err(os_error)?;
+                core.save_position(Some(PetPosition { x: p.x, y: p.y }))?;
+            }
+        }
     }
-    refresh_shortcuts(&app);
-    Ok(())
+    Ok(PetReply::Done)
 }
-
-#[tauri::command]
-fn set_start_at_login(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
-    if enabled {
-        app.autolaunch().enable()
+fn check_coordinates(x: f64, y: f64) -> Result<()> {
+    if !x.is_finite() || !y.is_finite() || x.abs() > 100_000.0 || y.abs() > 100_000.0 {
+        Err(AppError::new(
+            ErrorCode::InvalidInput,
+            "Invalid pointer coordinates.",
+        ))
     } else {
-        app.autolaunch().disable()
+        Ok(())
     }
-    .map_err(|error| error.to_string())?;
-    let _ = app.emit("config-changed", ());
-    Ok(())
 }
-
-fn position_pet(app: &tauri::AppHandle, saved: Option<PetPosition>) -> Result<(), String> {
+fn clamp_position(window: &tauri::WebviewWindow, desired: PetPosition) -> Result<PetPosition> {
+    let size = window.outer_size().map_err(os_error)?;
+    let monitors = window.available_monitors().map_err(os_error)?;
+    monitors
+        .iter()
+        .map(|m| {
+            let area = m.work_area();
+            let min_x = area.position.x;
+            let min_y = area.position.y;
+            let max_x = (i64::from(min_x) + i64::from(area.size.width) - i64::from(size.width))
+                .max(i64::from(min_x)) as i32;
+            let max_y = (i64::from(min_y) + i64::from(area.size.height) - i64::from(size.height))
+                .max(i64::from(min_y)) as i32;
+            PetPosition {
+                x: desired.x.clamp(min_x, max_x),
+                y: desired.y.clamp(min_y, max_y),
+            }
+        })
+        .min_by_key(|p| {
+            (i64::from(p.x) - i64::from(desired.x)).pow(2)
+                + (i64::from(p.y) - i64::from(desired.y)).pow(2)
+        })
+        .ok_or_else(|| os_error("No display is available for the pet."))
+}
+fn position_pet(app: &tauri::AppHandle, saved: Option<PetPosition>) -> Result<()> {
     let window = app
         .get_webview_window("pet")
-        .ok_or("The pet window is unavailable.")?;
-    let monitors = window
-        .available_monitors()
-        .map_err(|error| error.to_string())?;
-    let size = window.outer_size().map_err(|error| error.to_string())?;
+        .ok_or_else(|| AppError::new(ErrorCode::Process, "The pet window is unavailable."))?;
+    let monitors = window.available_monitors().map_err(os_error)?;
+    let size = window.outer_size().map_err(os_error)?;
     let valid = saved.filter(|position| {
         monitors.iter().any(|monitor| {
             let origin = monitor.position();
@@ -283,10 +254,7 @@ fn position_pet(app: &tauri::AppHandle, saved: Option<PetPosition>) -> Result<()
     });
     let position = if let Some(position) = valid {
         PhysicalPosition::new(position.x, position.y)
-    } else if let Some(monitor) = window
-        .primary_monitor()
-        .map_err(|error| error.to_string())?
-    {
+    } else if let Some(monitor) = window.primary_monitor().map_err(os_error)? {
         let scale = monitor.scale_factor();
         PhysicalPosition::new(
             monitor.position().x + monitor.size().width as i32
@@ -299,52 +267,37 @@ fn position_pet(app: &tauri::AppHandle, saved: Option<PetPosition>) -> Result<()
     } else {
         PhysicalPosition::new(40, 100)
     };
-    window
-        .set_position(position)
-        .map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-fn reset_pet_position(app: tauri::AppHandle) -> Result<(), String> {
-    position_pet(&app, None)?;
-    update_config(&app, |config| {
-        config.pet_position = None;
-        Ok(())
-    })
-}
-
-#[tauri::command]
-fn save_pet_position(app: tauri::AppHandle) -> Result<(), String> {
-    let position = app
-        .get_webview_window("pet")
-        .ok_or("The pet window is unavailable.")?
-        .outer_position()
-        .map_err(|error| error.to_string())?;
-    update_config(&app, |config| {
-        config.pet_position = Some(PetPosition {
-            x: position.x,
-            y: position.y,
-        });
-        Ok(())
-    })
+    window.set_position(position).map_err(os_error)
 }
 
 fn make_tray_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let config = read_config(app).unwrap_or_default();
+    let view = app.state::<AppState>().core.pet().ok();
     let name = config
         .connections
         .iter()
-        .find(|item| Some(&item.id) == config.favorite_id.as_ref())
-        .map(|item| item.name.as_str());
+        .find(|c| Some(&c.id) == config.favorite_id.as_ref())
+        .map(|c| c.name.as_str());
     let connect = MenuItem::with_id(
         app,
         "connect-favorite",
-        name.map(|name| format!("Connect to {name}"))
+        name.map(|n| format!("Connect to {n}"))
             .unwrap_or("Add your first connection…".into()),
-        true,
+        view.is_some_and(|v| v.can_connect),
         None::<&str>,
     )?;
     let open = MenuItem::with_id(app, "open", "Open Droplet…", true, None::<&str>)?;
+    let lock = MenuItem::with_id(
+        app,
+        "toggle-lock",
+        if config.launch_locked {
+            "Resume SSH launches"
+        } else {
+            "Pause SSH launches"
+        },
+        true,
+        None::<&str>,
+    )?;
     let pet = MenuItem::with_id(
         app,
         "toggle-pet",
@@ -364,13 +317,13 @@ fn make_tray_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
         None::<&str>,
     )?;
     let quit = MenuItem::with_id(app, "quit", "Quit Droplet", true, None::<&str>)?;
-    let separator = PredefinedMenuItem::separator(app)?;
     Menu::with_items(
         app,
         &[
             &connect,
             &open,
-            &separator,
+            &lock,
+            &PredefinedMenuItem::separator(app)?,
             &pet,
             &reset,
             &PredefinedMenuItem::separator(app)?,
@@ -378,7 +331,6 @@ fn make_tray_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
         ],
     )
 }
-
 fn refresh_shortcuts(app: &tauri::AppHandle) {
     if let Some(tray) = app.tray_by_id("droplet") {
         if let Ok(menu) = make_tray_menu(app) {
@@ -388,78 +340,133 @@ fn refresh_shortcuts(app: &tauri::AppHandle) {
     #[cfg(target_os = "macos")]
     touchbar::refresh(app);
 }
+fn tray_action(app: &tauri::AppHandle, action: &str) {
+    match action {
+        "connect-favorite" => {
+            connect_favorite(app);
+            return;
+        }
+        "open" => {
+            let _ = show_launcher(app.clone());
+            return;
+        }
+        "quit" => {
+            app.exit(0);
+            return;
+        }
+        _ => {}
+    }
+    let request = match read_config(app) {
+        Ok(c) => match action {
+            "toggle-lock" => MainRequest::LaunchLock {
+                locked: !c.launch_locked,
+            },
+            "toggle-pet" => MainRequest::Preferences {
+                preferences: Preferences {
+                    pet_visible: !c.pet_visible,
+                    reduce_motion: c.reduce_motion,
+                },
+            },
+            "reset-pet" => MainRequest::ResetPet,
+            _ => return,
+        },
+        Err(error) => {
+            report_error(app, error);
+            return;
+        }
+    };
+    let app = app.clone();
+    tauri::async_runtime::spawn(async move {
+        if let Err(error) = dispatch(&app, request).await {
+            report_error(&app, error);
+        }
+    });
+}
 
 pub fn run() {
     let app = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| { let _ = show_launcher(app.clone()); }))
-        .plugin(tauri_plugin_autostart::Builder::new().args(["--background"]).build())
-        .invoke_handler(tauri::generate_handler![get_snapshot, save_connection, import_command, delete_connection, set_favorite, connect, show_launcher, hide_launcher, set_preferences, set_start_at_login, reset_pet_position, save_pet_position])
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            let _ = show_launcher(app.clone());
+        }))
+        .plugin(
+            tauri_plugin_autostart::Builder::new()
+                .args(["--background"])
+                .build(),
+        )
+        .plugin(
+            tauri::plugin::Builder::<tauri::Wry, ()>::new("local-navigation")
+                .on_navigation(|_, url| {
+                    (url.scheme() == "tauri" && url.host_str() == Some("localhost"))
+                        || (matches!(url.scheme(), "http" | "https")
+                            && url.host_str() == Some("tauri.localhost"))
+                        || (cfg!(debug_assertions)
+                            && url.scheme() == "http"
+                            && url.host_str() == Some("127.0.0.1")
+                            && url.port() == Some(1420))
+                })
+                .build(),
+        )
+        .invoke_handler(tauri::generate_handler![main_command, pet_command])
         .setup(|app| {
-            let path = app.path().app_config_dir()?.join("connections.json");
-            let home = app.path().home_dir()?;
-            let mut notice = None;
-            let mut load_error = None;
-            let config = match storage::load(&path) {
-                Ok(Some(config)) => config,
-                Ok(None) => {
-                    let mut config = Config::default();
-                    let launcher = home.join("Desktop/zbook-studio-ssh.command");
-                    if launcher.is_file() {
-                        match std::fs::read_to_string(launcher).map_err(|error| error.to_string()).and_then(|text| model::parse_launcher(&text, "Zbook Studio")) {
-                            Ok(connection) => {
-                                config.favorite_id = Some(connection.id.clone());
-                                config.connections.push(connection);
-                                notice = Some("Your Zbook Studio connection was imported from the Desktop launcher.".into());
-                            }
-                            Err(error) => notice = Some(format!("The Desktop launcher could not be imported: {error}")),
-                        }
-                    }
-                    if let Err(error) = storage::save(&path, &config) { load_error = Some(error); }
-                    config
-                }
-                Err(error) => {
-                    load_error = Some(format!("{error} Your original file is unchanged at {}. Repair or move it, then reopen Droplet.", path.display()));
-                    Config::default()
-                }
-            };
-            let pet_visible = config.pet_visible;
-            let pet_position = config.pet_position.clone();
-            app.manage(AppState { config: Mutex::new(config), path, home, notice, load_error, launching: std::sync::atomic::AtomicBool::new(false) });
-            let handle = app.handle();
+            let core = Core::open(app.path().app_config_dir()?, app.path().home_dir()?);
+            let config = core.config()?;
+            app.manage(AppState {
+                core: core.clone(),
+                drag: Mutex::new(None),
+            });
+            let handle = app.handle().clone();
+            let notify_handle = handle.clone();
+            core.set_notifier(move || {
+                let _ = notify_handle.emit("state-changed", ());
+                let h = notify_handle.clone();
+                let _ = notify_handle.run_on_main_thread(move || refresh_shortcuts(&h));
+            });
             TrayIconBuilder::with_id("droplet")
-                .icon(tauri::image::Image::from_bytes(include_bytes!("../icons/tray.png"))?)
+                .icon(tauri::image::Image::from_bytes(include_bytes!(
+                    "../icons/tray.png"
+                ))?)
                 .icon_as_template(true)
                 .tooltip("Droplet · your SSH companion")
-                .menu(&make_tray_menu(handle)?)
+                .menu(&make_tray_menu(&handle)?)
                 .show_menu_on_left_click(true)
-                .on_menu_event(|app, event| match event.id.as_ref() {
-                    "connect-favorite" => connect_favorite(app),
-                    "open" => { let _ = show_launcher(app.clone()); },
-                    "toggle-pet" => if let Ok(config) = read_config(app) {
-                        if let Err(error) = set_preferences(app.clone(), !config.pet_visible, config.reduce_motion) { report_error(app, error); }
-                    },
-                    "reset-pet" => {
-                        if let Err(error) = reset_pet_position(app.clone()).and_then(|_| {
-                            let config = read_config(app)?;
-                            set_preferences(app.clone(), true, config.reduce_motion)
-                        }) { report_error(app, error); }
-                    },
-                    "quit" => app.exit(0),
-                    _ => {},
-                })
+                .on_menu_event(|app, event| tray_action(app, event.id.as_ref()))
                 .build(app)?;
-            position_pet(handle, pet_position)?;
-            if pet_visible { if let Some(pet) = app.get_webview_window("pet") { pet.show()?; } }
+            position_pet(&handle, config.pet_position)?;
+            if config.pet_visible {
+                if let Some(pet) = app.get_webview_window("pet") {
+                    pet.show()?;
+                }
+            }
             #[cfg(target_os = "macos")]
-            touchbar::install(handle);
-            if !std::env::args().any(|arg| arg == "--background") { show_launcher(handle.clone())?; }
+            touchbar::install(&handle);
+            if !std::env::args().any(|arg| arg == "--background") {
+                show_launcher(handle)?;
+            }
             Ok(())
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
-                if window.label() == "main" { let _ = window.hide(); }
-                else if let Ok(config) = read_config(window.app_handle()) { let _ = set_preferences(window.app_handle().clone(), false, config.reduce_motion); }
+                if window.label() == "main" {
+                    let _ = window.hide();
+                } else {
+                    let app = window.app_handle().clone();
+                    tauri::async_runtime::spawn(async move {
+                        if let Ok(c) = read_config(&app) {
+                            if let Err(error) = preferences(
+                                &app,
+                                Preferences {
+                                    pet_visible: false,
+                                    reduce_motion: c.reduce_motion,
+                                },
+                            )
+                            .await
+                            {
+                                report_error(&app, error);
+                            }
+                        }
+                    });
+                }
             }
         })
         .build(tauri::generate_context!())
@@ -471,4 +478,15 @@ pub fn run() {
         }
         let _ = (app, event);
     });
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn invalid_pointer_coordinates_are_rejected() {
+        assert!(super::check_coordinates(f64::NAN, 0.0).is_err());
+        assert!(super::check_coordinates(f64::INFINITY, 0.0).is_err());
+        assert!(super::check_coordinates(0.0, 100_001.0).is_err());
+        assert!(super::check_coordinates(-1200.0, 400.0).is_ok());
+    }
 }

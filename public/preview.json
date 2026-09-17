@@ -1,0 +1,58 @@
+{
+  "connections": [
+    {
+      "id": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd",
+      "name": "Zbook Studio",
+      "address": "you@studio.local",
+      "authLabel": "SSH config / agent",
+      "portLabel": "Port 22",
+      "isFavorite": true,
+      "canConnect": true,
+      "connectLabel": "Connect",
+      "canDiagnose": true,
+      "draft": {
+        "id": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd",
+        "name": "Zbook Studio",
+        "host": "studio.local",
+        "username": "you",
+        "port": "22",
+        "identityFile": ""
+      },
+      "report": null
+    }
+  ],
+  "connectionCount": 1,
+  "preferences": {
+    "petVisible": true,
+    "reduceMotion": false
+  },
+  "launchLocked": false,
+  "diagnosticRunning": false,
+  "activity": [
+    {
+      "id": "80ee6397-747d-4745-a2c9-c19810575f6a",
+      "timestamp": 1789675613790,
+      "action": "connection imported",
+      "outcome": "requested",
+      "connectionId": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd"
+    }
+  ],
+  "notice": null,
+  "loadError": null,
+  "pet": {
+    "mood": "idle",
+    "tooltip": "Double-click → Zbook Studio",
+    "status": "Ready when you are",
+    "reduceMotion": false,
+    "canConnect": true
+  },
+  "securitySummary": [
+    "Host-key verification enforced",
+    "Agent / X11 forwarding disabled",
+    "LocalCommand and implicit tunnels disabled",
+    "Explicit key permissions checked",
+    "Launch cooldown and window permissions enforced"
+  ],
+  "startAtLogin": false,
+  "platform": "macos"
+}

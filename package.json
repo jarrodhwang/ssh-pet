@@ -1,6 +1,6 @@
 {
   "name": "droplet-ssh",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,16 +11,25 @@
     "app:dev": "tauri dev",
     "app:build": "tauri build --bundles app",
     "test": "playwright test",
-    "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml"
+    "test:rust": "cargo test --workspace",
+    "types": "cargo run -p droplet-cli -- export-types src/generated",
+    "preview:data": "cargo run -p droplet-cli -- preview public",
+    "pretest": "cargo build -p droplet-cli",
+    "types:check": "node scripts/check-types.mjs"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.11.1"
+    "@tauri-apps/api": "^2.11.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.58.2",
     "@tauri-apps/cli": "^2.11.4",
     "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "typescript": "^5.9.3",
     "vite": "^8.3.0"
   }

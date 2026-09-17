@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
+use ts_rs::TS;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Connection {
     pub id: String,
     pub name: String,
@@ -43,6 +44,23 @@ impl Connection {
                 "Use a username containing letters, numbers, dots, underscores, or hyphens.".into(),
             );
         }
+        let address = self
+            .host
+            .strip_prefix('[')
+            .and_then(|s| s.strip_suffix(']'))
+            .unwrap_or(&self.host);
+        if (self.host.contains(':') || self.host.contains('[') || self.host.contains(']'))
+            && address.parse::<std::net::IpAddr>().is_err()
+        {
+            return Err("Enter a valid IPv6 address, without a port suffix.".into());
+        }
+        if [&self.name, &self.identity_file].iter().any(|value| {
+            value
+                .chars()
+                .any(|c| matches!(c, '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}'))
+        }) {
+            return Err("Names and paths cannot contain bidirectional control characters.".into());
+        }
         if self.port == 0 {
             return Err("The port must be between 1 and 65535.".into());
         }
@@ -77,6 +95,13 @@ impl Connection {
     }
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Preferences {
+    pub pet_visible: bool,
+    pub reduce_motion: bool,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PetPosition {
     pub x: i32,
@@ -84,7 +109,7 @@ pub struct PetPosition {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(default, rename_all = "camelCase")]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct Config {
     pub version: u32,
     pub connections: Vec<Connection>,
@@ -92,6 +117,7 @@ pub struct Config {
     pub pet_visible: bool,
     pub reduce_motion: bool,
     pub pet_position: Option<PetPosition>,
+    pub launch_locked: bool,
 }
 
 impl Default for Config {
@@ -103,6 +129,7 @@ impl Default for Config {
             pet_visible: true,
             reduce_motion: false,
             pet_position: None,
+            launch_locked: false,
         }
     }
 }
@@ -118,7 +145,7 @@ impl Config {
         let mut ids = std::collections::HashSet::new();
         for connection in &self.connections {
             connection.validate()?;
-            if connection.id.is_empty() || !ids.insert(&connection.id) {
+            if uuid::Uuid::parse_str(&connection.id).is_err() || !ids.insert(&connection.id) {
                 return Err("Connection IDs must be unique.".into());
             }
         }
@@ -135,6 +162,9 @@ impl Config {
 
 /// Import a single plain SSH invocation as data. Never run the file or accept extra commands.
 pub fn parse_launcher(content: &str, name: &str) -> Result<Connection, String> {
+    if content.len() > 8192 {
+        return Err("The command is too long (maximum 8 KiB).".into());
+    }
     let lines: Vec<_> = content
         .lines()
         .map(str::trim)
