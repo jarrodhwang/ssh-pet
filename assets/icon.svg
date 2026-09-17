@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="200" y1="50" x2="850" y2="1000" gradientUnits="userSpaceOnUse"><stop stop-color="#effaff"/><stop offset="1" stop-color="#c9e7f4"/></linearGradient>
+    <linearGradient id="body" x1="320" y1="220" x2="680" y2="820" gradientUnits="userSpaceOnUse"><stop stop-color="#b6f0ff"/><stop offset=".4" stop-color="#74d3f3"/><stop offset="1" stop-color="#2990cd"/></linearGradient>
+    <radialGradient id="shine" cx=".3" cy=".2" r=".8"><stop stop-color="#eaffff" stop-opacity=".7"/><stop offset="1" stop-color="#d1faff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="shadow"><stop stop-color="#3174a0" stop-opacity=".23"/><stop offset="1" stop-color="#3174a0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="222" fill="url(#bg)"/>
+  <rect x="34" y="34" width="956" height="956" rx="220" stroke="white" stroke-opacity=".7" stroke-width="4"/>
+  <ellipse cx="512" cy="862" rx="288" ry="58" fill="url(#shadow)"/>
+  <path d="M515 160c-24 148-231 248-267 417-40 182 69 303 256 312 170 8 295-97 287-251-8-154-170-263-219-389-12-28-20-57-20-73-4-32-29-40-37-16Z" transform="translate(0 -50)" fill="url(#body)" stroke="#d4f5ff" stroke-width="5"/>
+  <path d="M515 160c-24 148-231 248-267 417-40 182 69 303 256 312 170 8 295-97 287-251-8-154-170-263-219-389-12-28-20-57-20-73-4-32-29-40-37-16Z" transform="translate(0 -50)" fill="url(#shine)"/>
+  <path d="M350 460c-31 39-48 78-51 133" stroke="white" stroke-opacity=".68" stroke-width="35" stroke-linecap="round"/>
+  <ellipse cx="397" cy="400" rx="16" ry="24" transform="rotate(35 397 400)" fill="white" fill-opacity=".6"/>
+  <ellipse cx="424" cy="622" rx="21" ry="29" fill="#245a7b"/><ellipse cx="625" cy="622" rx="21" ry="29" fill="#245a7b"/>
+  <circle cx="429" cy="611" r="6" fill="white"/><circle cx="630" cy="611" r="6" fill="white"/>
+  <ellipse cx="368" cy="673" rx="39" ry="21" fill="#b6e7f7" fill-opacity=".6"/><ellipse cx="684" cy="673" rx="39" ry="21" fill="#b6e7f7" fill-opacity=".6"/>
+  <path d="M494 674q30 34 60 0" stroke="#245a7b" stroke-width="12" stroke-linecap="round"/>
+</svg>
