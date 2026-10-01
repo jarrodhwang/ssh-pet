@@ -1,6 +1,6 @@
 use crate::{
     diagnostics,
-    model::{self, Config, Connection, PetPosition, Preferences},
+    model::{self, Config, Connection, PetPosition, Preferences, TerminalShell},
     protocol::*,
     security::{self, LaunchSpec},
     storage, AppError, ErrorCode, Result,
@@ -213,6 +213,9 @@ impl Core {
                 .unwrap_or_else(|| "Click to add your first connection".into())
         };
         PetView {
+            pet: state.config.pet,
+            name: state.config.pet.name().into(),
+            theme: state.config.pet.theme(),
             mood,
             status: status.into(),
             tooltip,
@@ -276,11 +279,14 @@ impl Core {
             })
             .collect();
         Ok(AppView {
+            pet_themes: crate::pets::catalog(),
             connections,
             connection_count: state.config.connections.len(),
             preferences: Preferences {
+                pet: state.config.pet,
                 pet_visible: state.config.pet_visible,
                 reduce_motion: state.config.reduce_motion,
+                terminal_shell: state.config.terminal_shell.clone(),
             },
             launch_locked: state.config.launch_locked,
             diagnostic_running: state.diagnostic.is_some(),
@@ -389,8 +395,10 @@ impl Core {
                         ("favorite changed", Some(id))
                     }
                     MainRequest::Preferences { preferences } => {
+                        next.pet = preferences.pet;
                         next.pet_visible = preferences.pet_visible;
                         next.reduce_motion = preferences.reduce_motion;
+                        next.terminal_shell = preferences.terminal_shell;
                         ("preferences changed", None)
                     }
                     MainRequest::LaunchLock { locked } => {
@@ -459,6 +467,7 @@ impl Core {
                 core: self.clone(),
                 id: c.id,
                 spec,
+                terminal_shell: state.config.terminal_shell.clone(),
                 finished: false,
             })
         })();
@@ -520,6 +529,7 @@ pub struct LaunchLease {
     core: Arc<Core>,
     id: String,
     pub spec: LaunchSpec,
+    pub terminal_shell: TerminalShell,
     finished: bool,
 }
 impl LaunchLease {

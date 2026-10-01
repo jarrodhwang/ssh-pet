@@ -2,7 +2,8 @@
 import type { Activity } from "./Activity";
 import type { AppError } from "./AppError";
 import type { ConnectionView } from "./ConnectionView";
+import type { PetThemeView } from "./PetThemeView";
 import type { PetView } from "./PetView";
 import type { Preferences } from "./Preferences";
 
-export type AppView = { connections: Array<ConnectionView>, connectionCount: number, preferences: Preferences, launchLocked: boolean, diagnosticRunning: boolean, activity: Array<Activity>, notice: string | null, loadError: AppError | null, pet: PetView, securitySummary: Array<string>, startAtLogin: boolean, platform: string, };
+export type AppView = { petThemes: Array<PetThemeView>, connections: Array<ConnectionView>, connectionCount: number, preferences: Preferences, launchLocked: boolean, diagnosticRunning: boolean, activity: Array<Activity>, notice: string | null, loadError: AppError | null, pet: PetView, securitySummary: Array<string>, startAtLogin: boolean, platform: string, };

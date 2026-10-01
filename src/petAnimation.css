@@ -1,0 +1,70 @@
+.character-art { position: relative; display: block; isolation: isolate; pointer-events: none; }
+.pet-motion { position: absolute; inset: 12% 15% 8%; transform-origin: 50% 86%; }
+.character-image { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; user-select: none; filter: drop-shadow(0 3px 2px #302c351b); }
+.character-floor { position: absolute; bottom: 5%; left: 30%; width: 40%; height: 4%; border-radius: 50%; background: radial-gradient(ellipse, #36333c25, transparent 72%); }
+.character-art[data-motion="playing"] .render-idle { animation: character-breathe 5s ease-in-out infinite; }
+.character-art[data-motion="gentle"] .render-idle { animation: gentle-breathe 10s ease-in-out infinite; }
+.pet-motion.behind-film { opacity: 0; }
+.pet-film { position: absolute; inset: 12% 3% 8%; display: flex; align-items: center; justify-content: center; animation: clip-arrive .3s ease-out both; }
+.pet-film img { width: 100%; max-height: 100%; object-fit: contain; border-radius: 24px; filter: drop-shadow(0 6px 6px #211e3d20); }
+.pet-film.transparent-clip { inset: 9% 13% 8%; }
+.pet-film.transparent-clip img { height: 100%; border-radius: 0; object-position: 50% 100%; }
+.pet-art-unavailable { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted, #596f7d); font-size: 12px; }
+.pet-effects { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: none; pointer-events: none; }
+.electricity { stroke: #f7bf25; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px #ffc938b0); }
+.electric-a { animation: electric-glow 1.3s ease-in-out infinite; }
+.electric-b { animation: electric-glow 1.3s .65s ease-in-out infinite; }
+.action-spark { animation: power-charge 3.2s ease-in-out both; }
+.action-volt-tackle { animation: volt-tackle 3.6s cubic-bezier(.22,.65,.25,1) both; }
+.charge-ring { stroke: #ffe79c; stroke-width: 4; stroke-dasharray: 34 16; transform-origin: 50% 50%; animation: charge-ring 3.6s ease-in-out both; }
+.speed-lines { stroke: #ffe295; stroke-width: 4; animation: tackle-trail 3.6s ease-out both; }
+.action-iron-tail { animation: tail-turn 3s cubic-bezier(.22,.65,.25,1) both; }
+.tail-sweep { stroke: #c0d9ea; stroke-width: 10; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 260; filter: drop-shadow(0 0 3px #f6fcff); animation: tail-arc 3s ease-out both; }
+.tail-sweep.second { stroke: #fbfdff; stroke-width: 3; animation-delay: .08s; }
+.metal-stars { fill: #f7fcff; stroke: #97b3c9; stroke-width: 1; animation: metal-stars 3s ease-in-out both; }
+.action-pounce { animation: character-pounce 3.2s ease-in-out both; }
+.action-flutter { animation: character-flutter 3.5s ease-in-out both; }
+.action-twirl { animation: character-twirl 3.5s ease-in-out both; }
+.action-petals, .action-bubbles, .action-sing { animation: character-sway 2s ease-in-out infinite; }
+.bubble { stroke: #73b9da; fill: #bde8fb30; stroke-width: 2; animation: bubble-rise 2.4s ease-out infinite; }
+.bubble-1 { animation-delay: -.6s; }.bubble-2 { animation-delay: -1.3s; }.bubble-3 { animation-delay: -1.8s; }.bubble-4 { animation-delay: -.9s; }
+.flame { transform-origin: 76% 71%; }
+.flame-outer { fill: #ffa225; animation: ember-glow 1.4s ease-in-out infinite; }
+.flame-inner { fill: #ffed9b; }
+.embers { fill: #fb9e36; animation: ember-rise 1.8s ease-out infinite; }
+.petal { fill: #dc95b9; opacity: 0; animation: petal-fall 3s ease-in-out infinite; }
+.petal-1 { animation-delay: -.5s; }.petal-2 { animation-delay: -1.2s; }.petal-3 { animation-delay: -1.9s; }.petal-4 { animation-delay: -2.4s; }
+.music { stroke: #9370a3; stroke-width: 3; stroke-linecap: round; }
+.note { animation: music-drift 2.6s ease-in-out infinite; }.note ellipse { fill: #9370a3; stroke: none; }
+.note-b { animation-delay: -.85s; }.note-c { animation-delay: -1.7s; }
+.pet-action-list { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+.pet-action-list button { display: flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 6px 8px; font-size: 10px; color: var(--accent); min-height: 30px; }
+.pet-action-list button:hover:enabled { background: var(--accent-soft); border-color: var(--accent); }
+.pet-action-list button:disabled { opacity: .55; cursor: default; }
+.pet-controls .toggle:disabled, .pet-option:disabled, .terminal-select:disabled { cursor: wait; }
+.pet-action-list button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@keyframes character-breathe { 0%,100% { transform: translateY(0) rotate(-.4deg); } 50% { transform: translateY(-2px) rotate(.4deg); } }
+@keyframes gentle-breathe { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-.8px); } }
+@keyframes electric-glow { 0%,100% { opacity: .18; } 50% { opacity: 1; } }
+@keyframes power-charge { 0%,100% { transform: scale(1); } 35% { transform: scale(.96) translateY(3px); } 65% { transform: scale(1.04) translateY(-3px); } }
+@keyframes volt-tackle { 0%,100% { transform: translateX(0) rotate(0); } 18%,32% { transform: translateX(-12%) rotate(-6deg) scale(.94); } 48% { transform: translateX(18%) rotate(8deg); } 66% { transform: translateX(-18%) rotate(-8deg); } 82% { transform: translateX(9%) rotate(4deg); } }
+@keyframes charge-ring { 0%,100% { opacity: 0; transform: scale(.7) rotate(0); } 25%,75% { opacity: .65; transform: scale(.93) rotate(110deg); } }
+@keyframes tackle-trail { 0%,32%,88%,100% { opacity: 0; transform: translateX(0); } 45%,67% { opacity: .8; transform: translateX(8%); } }
+@keyframes tail-turn { 0%,100% { transform: rotate(0); } 22% { transform: rotate(-10deg) scale(.95); } 47% { transform: rotate(12deg) translateX(-5%); } 67% { transform: rotate(-6deg); } }
+@keyframes tail-arc { 0%,25% { stroke-dashoffset: 260; opacity: 0; } 45% { stroke-dashoffset: 0; opacity: 1; } 72%,100% { stroke-dashoffset: -260; opacity: 0; } }
+@keyframes metal-stars { 0%,35%,80%,100% { opacity: 0; } 50%,60% { opacity: 1; } }
+@keyframes character-pounce { 0%,100% { transform: translateY(0); } 22% { transform: scale(1.04,.94); } 48% { transform: translateY(-15%) rotate(-7deg); } 65% { transform: translateY(0) scale(1.05,.95); } 82% { transform: translateY(-4%); } }
+@keyframes character-flutter { 0%,100% { transform: translateY(0) rotate(0); } 25%,65% { transform: translateY(-15%) rotate(-8deg); } 45%,80% { transform: translateY(-8%) rotate(8deg); } }
+@keyframes character-twirl { 0%,100% { transform: rotate(0) translateY(0); } 30% { transform: rotate(-10deg) translateY(-5%); } 60% { transform: rotate(12deg) translateY(-8%); } 80% { transform: rotate(-4deg); } }
+@keyframes character-sway { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes bubble-rise { 0% { opacity: 0; transform: translateY(15px); } 35% { opacity: .9; } 100% { opacity: 0; transform: translateY(-28px); } }
+@keyframes ember-glow { 0%,100% { opacity: .65; transform: translateY(2px); } 50% { opacity: 1; transform: translateY(-2px); } }
+@keyframes ember-rise { 0%,100% { opacity: 0; transform: translateY(0); } 50% { opacity: .8; transform: translateY(-10px); } }
+@keyframes petal-fall { 0% { opacity: 0; transform: translate(0,-12px) rotate(-15deg); } 30%,60% { opacity: .85; } 100% { opacity: 0; transform: translate(14px,35px) rotate(40deg); } }
+@keyframes music-drift { 0%,100% { opacity: 0; transform: translateY(5px); } 35%,65% { opacity: .9; transform: translateY(-8px); } }
+@keyframes clip-arrive { from { opacity: 0; transform: translateY(5px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 760px) {
+  .selected-pet .pet-action-list { grid-column: 1 / -1; margin-top: 8px; }
+  .selected-pet .pet-gestures { grid-column: 1 / -1; text-align: center; margin-top: 8px; }
+  .selected-pet .pet-stage { grid-row: 1 / 3; }
+}

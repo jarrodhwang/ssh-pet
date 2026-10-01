@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
-import { Droplet } from './art';
+import { PetArt } from './PetArt';
 import { onChanged, petCommand } from './bridge';
 import type { PetView } from './generated/PetView';
 import type { PetRequest } from './generated/PetRequest';
 
 export function Pet() {
   const [view, setView] = useState<PetView>();
+  const [held, setHeld] = useState(false);
   const pointer = useRef<{ id: number; x: number; y: number; moving: boolean } | null>(null);
   const queue = useRef(Promise.resolve());
   const clickTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -18,13 +19,14 @@ export function Pet() {
   useEffect(() => {
     document.body.classList.add('pet-window');
     let disposed = false; let unlisten = () => {};
-    void refresh().catch(() => {});
-    void onChanged(() => void refresh().catch(() => {})).then(fn => { if (disposed) fn(); else unlisten = fn; });
+    const update = () => { if (!disposed) void refresh().catch(() => {}); };
+    void onChanged(update).then(fn => { if (disposed) fn(); else { unlisten = fn; update(); } });
     return () => { disposed = true; unlisten(); clearTimeout(clickTimer.current); document.body.classList.remove('pet-window'); };
   }, [refresh]);
   useEffect(() => { document.body.classList.toggle('reduce-motion', !!view?.reduceMotion); }, [view?.reduceMotion]);
   const down = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) return;
+    setHeld(true);
     event.currentTarget.setPointerCapture(event.pointerId);
     pointer.current = { id: event.pointerId, x: event.screenX, y: event.screenY, moving: false };
   };
@@ -39,6 +41,7 @@ export function Pet() {
     }
   };
   const up = (event: PointerEvent<HTMLButtonElement>) => {
+    setHeld(false);
     const p = pointer.current; pointer.current = null;
     if (!p) return;
     if (p.moving) { send({ type: 'drag', x: event.screenX, y: event.screenY }); send({ type: 'endDrag' }); lastClick.current = 0; return; }
@@ -49,5 +52,5 @@ export function Pet() {
       clickTimer.current = setTimeout(() => send({ type: 'openLauncher' }), 300);
     }
   };
-  return <div className={`desktop-pet mood-${view?.mood || 'idle'}`}><span className="pet-tooltip">{view?.tooltip || 'Droplet'}</span><button className="pet-button" aria-label="Droplet: open connections" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { if (pointer.current?.moving) send({ type: 'endDrag' }); pointer.current = null; }} onClick={event => { if (event.detail === 0) send({ type: 'openLauncher' }); }}><Droplet /></button><span className="pet-status" role="status">{view?.status}</span></div>;
+  return <div className={`desktop-pet mood-${view?.mood || 'idle'}`}><span className="pet-tooltip">{view?.tooltip || 'Droplet'}</span><button className="pet-button" aria-label={`${view?.name || 'Droplet'}: open connections`} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={() => { setHeld(false); if (pointer.current?.moving) send({ type: 'endDrag' }); pointer.current = null; }} onClick={event => { if (event.detail === 0) send({ type: 'openLauncher' }); }}><PetArt pet={view?.pet} animated reduceMotion={view?.reduceMotion ?? true} paused={held || view?.mood === 'checking' || view?.mood === 'opening'} /></button><span className="pet-status" role="status">{view?.status}</span></div>;
 }

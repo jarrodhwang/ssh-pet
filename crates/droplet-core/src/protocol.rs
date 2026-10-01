@@ -94,6 +94,9 @@ pub enum PetMood {
 #[derive(Clone, Debug, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct PetView {
+    pub pet: crate::pets::PetKind,
+    pub name: String,
+    pub theme: crate::pets::PetTheme,
     pub mood: PetMood,
     pub tooltip: String,
     pub status: String,
@@ -165,6 +168,7 @@ pub struct ConnectionView {
 #[derive(Clone, Debug, Serialize, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct AppView {
+    pub pet_themes: Vec<crate::pets::PetThemeView>,
     pub connections: Vec<ConnectionView>,
     pub connection_count: usize,
     pub preferences: Preferences,

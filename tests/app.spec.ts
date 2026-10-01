@@ -1,9 +1,27 @@
 import { expect, test } from './fixtures';
 import AxeBuilder from '@axe-core/playwright';
 
+test('both surfaces recover when the native core is still starting', async ({ page }) => {
+  await page.addInitScript(() => {
+    const original = window.__DROPLET_TEST_INVOKE__!;
+    let attempts = 0;
+    window.__DROPLET_TEST_INVOKE__ = async (surface, request) => {
+      if ((request as { type: string }).type === 'view' && attempts++ < 2) {
+        return { ok: false, error: { message: 'Droplet is still starting.' } };
+      }
+      return original(surface, request);
+    };
+  });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Connections', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0);
+  await page.goto('/?window=pet');
+  await expect(page.locator('.pet-tooltip')).toHaveText('Double-click → Zbook Studio');
+});
+
 test('add, edit, favorite, and remove a connection without losing the original', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'A little closer.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Connections', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Add connection', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Connection name').fill('Build server');
@@ -39,6 +57,81 @@ test('pet preferences retain state between views', async ({ page }) => {
   await page.getByRole('button', { name: 'Your pet', exact: true }).click();
   await expect(visibility).not.toBeChecked();
   await expect(page.getByRole('switch', { name: 'Quiet movements' })).toBeChecked();
+});
+
+test('theme browsing filters pets, and choosing a pet persists to the desktop surface', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Your pet', exact: true }).click();
+  const themes = page.getByRole('group', { name: 'Pet themes', exact: true });
+  await themes.getByRole('button', { name: 'Pokémon', exact: true }).click();
+  await expect(page.getByRole('group', { name: 'Pokémon pets' }).getByRole('button')).toHaveCount(6);
+  await expect(page.getByRole('button', { name: 'Select Remy', exact: true })).toHaveCount(0);
+  await expect(page.locator('.shell')).toHaveAttribute('data-theme', 'droplet');
+  await page.getByRole('button', { name: 'Select Eevee', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Select Eevee', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.shell')).toHaveAttribute('data-theme', 'pokemon');
+  await page.screenshot({ path: 'artifacts/pet-selection-preview.png' });
+  await page.getByRole('switch', { name: 'Quiet movements' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Change pet: Eevee' })).toBeVisible();
+  await page.goto('/?window=pet');
+  await expect(page.getByRole('button', { name: 'Eevee: open connections' })).toBeVisible();
+  await expect(page.locator('.character-art')).toHaveAttribute('data-pet', 'eevee');
+  await expect(page.locator('body')).toHaveClass(/reduce-motion/);
+});
+
+test('all theme categories can select their pets without launching SSH', async ({ page, ipcRequests }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Your pet', exact: true }).click();
+  for (const [theme, pets] of [['Remy', ['Remy', 'Emile']], ['Pokémon', ['Pikachu', 'Eevee', 'Bulbasaur', 'Charmander', 'Squirtle', 'Jigglypuff']], ['Snoopy', ['Snoopy', 'Woodstock', 'Belle']], ['Droplet', ['Droplet']]] as const) {
+    await page.getByRole('group', { name: 'Pet themes', exact: true }).getByRole('button', { name: theme, exact: true }).click();
+    for (const pet of pets) {
+      const button = page.getByRole('button', { name: `Select ${pet}`, exact: true });
+      await button.click();
+      await expect(button).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.getByRole('heading', { name: pet, exact: true }).last()).toBeVisible();
+    }
+  }
+  expect(ipcRequests.some(call => ['connect', 'connectFavorite'].includes(call.request.type))).toBe(false);
+});
+
+test('a failed pet save retains the current pet and allows retry', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Your pet', exact: true }).click();
+  await page.getByRole('group', { name: 'Pet themes', exact: true }).getByRole('button', { name: 'Snoopy', exact: true }).click();
+  await page.evaluate(() => {
+    const original = window.__DROPLET_TEST_INVOKE__!;
+    let fail = true;
+    window.__DROPLET_TEST_INVOKE__ = async (surface, request) => {
+      if (fail && (request as { type: string }).type === 'preferences') {
+        fail = false;
+        return { ok: false, error: { message: 'Settings could not be saved.' } };
+      }
+      return original(surface, request);
+    };
+  });
+  const select = page.getByRole('button', { name: 'Select Snoopy', exact: true });
+  await select.click();
+  await expect(page.getByRole('status')).toHaveText('Settings could not be saved.');
+  await expect(page.getByRole('button', { name: 'Change pet: Droplet' })).toBeVisible();
+  await expect(select).toHaveAttribute('aria-pressed', 'false');
+  await expect(select).toBeEnabled();
+  await select.click();
+  await expect(page.getByRole('button', { name: 'Change pet: Snoopy' })).toBeVisible();
+});
+
+test('pet picker remains accessible in every color theme and fits the minimum window', async ({ page }) => {
+  await page.setViewportSize({ width: 700, height: 580 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Your pet', exact: true }).click();
+  for (const [theme, pet] of [['Remy', 'Remy'], ['Pokémon', 'Pikachu'], ['Snoopy', 'Snoopy'], ['Droplet', 'Droplet']]) {
+    await page.getByRole('group', { name: 'Pet themes', exact: true }).getByRole('button', { name: theme, exact: true }).click();
+    await page.getByRole('button', { name: `Select ${pet}`, exact: true }).click();
+    await expect(page.getByRole('button', { name: `Select ${pet}`, exact: true })).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
+    const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+    expect(result.violations).toEqual([]);
+  }
 });
 
 test('preview clearly reports that it cannot open an SSH session', async ({ page }) => {

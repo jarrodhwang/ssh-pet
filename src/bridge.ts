@@ -10,7 +10,7 @@ export const native = isTauri();
 declare global {
   interface Window { __DROPLET_TEST_INVOKE__?: (surface: string, request: unknown) => Promise<{ ok: boolean; value?: unknown; error?: unknown }> }
 }
-async function send<T>(surface: 'main' | 'pet', request: MainRequest | PetRequest): Promise<T> {
+async function sendOnce<T>(surface: 'main' | 'pet', request: MainRequest | PetRequest): Promise<T> {
   if (native) return invoke<T>(`${surface}_command`, { request });
   // Compiled out of production. Browser tests exercise the real, isolated Rust core.
   if (import.meta.env.DEV && window.__DROPLET_TEST_INVOKE__) {
@@ -25,6 +25,17 @@ async function send<T>(surface: 'main' | 'pet', request: MainRequest | PetReques
     return { type: 'view', value: await response.json() } as T;
   }
   throw new Error('Open the desktop app to use this action. This browser preview is read-only.');
+}
+async function send<T>(surface: 'main' | 'pet', request: MainRequest | PetRequest): Promise<T> {
+  // Tauri may load the renderer before native setup has registered the core.
+  // Retry only this startup read; writes and other errors retain their normal behavior.
+  for (let attempt = 0; ; attempt++) {
+    try { return await sendOnce<T>(surface, request); }
+    catch (error) {
+      if (request.type !== 'view' || errorText(error) !== 'Droplet is still starting.' || attempt >= 8) throw error;
+      await new Promise(resolve => setTimeout(resolve, 150 * (attempt + 1)));
+    }
+  }
 }
 export const mainCommand = (request: MainRequest) => send<Reply>('main', request);
 export const petCommand = (request: PetRequest) => send<PetReply>('pet', request);

@@ -1,22 +1,24 @@
 # Droplet
 
-A water-drop desktop pet that keeps SSH connections close. **Tauri 2 stays the desktop shell; Rust owns the application; React TSX owns the interface.** macOS first, with Windows and Linux terminal adapters planned.
+A desktop companion that keeps SSH connections close. Choose a theme, then a pet: Remy (Remy, Emile), Pokémon (Pikachu, Eevee, Bulbasaur, Charmander, Squirtle, Jigglypuff), Snoopy (Snoopy, Woodstock, Belle), or the original Droplet. **Tauri 2 stays the desktop shell; Rust owns the application; React TSX owns the interface.** macOS and Windows are supported native targets; Linux terminal integration remains planned.
 
 ![Droplet with sample connection details](artifacts/droplet-preview.png)
 
-## Use it on macOS
+## Use it on macOS or Windows
 
 Open `Droplet.app`. On first launch, Droplet imports the plain SSH invocation in `~/Desktop/zbook-studio-ssh.command`, if present. It reads connection details without executing or modifying that file.
 
-- **Menu bar:** open connections, connect to your favorite, pause new SSH launches, show/hide the pet, or quit.
+- **Menu bar/system tray:** open connections, connect to your favorite, pause new SSH launches, show/hide the pet, or quit.
 - **Desktop pet:** click for connections, double-click for your favorite, drag to move. Rust keeps its position within available display bounds. The pet reflects opening, checking, paused, and attention states.
+- **Your pet:** browse a theme and select its character. The pet and matching app colors update together, and the choice survives restarts. Browsing alone does not change your pet. Original character images and animation frames ship locally; [asset credits](public/pets/CREDITS.md) record their sources. Existing settings retain Droplet until you choose another pet.
+- **Character animations:** the desktop pet and large preview play original animated stickers, with occasional character-specific moves. Pikachu rests with small blinks/nods; electricity, Volt Tackle travel, and Iron Tail are occasional moves. Remy's cheese/strawberry actions play original movie excerpts; Emile snacks and Snoopy dances. Small selection cards use still posters. Preview buttons replay a move without launching SSH. Normal moves are spaced 40–70 seconds apart. **Quiet movements** uses slower, smaller idle sequences and spaces big moves 90–150 seconds apart; it keeps the pet alive rather than freezing it. System accessibility reduced motion, hidden pages and pointer interactions pause motion.
 - **Connection window:** add, edit, remove, favorite, search, or import a plain SSH command with `-i` and `-p`. SSH aliases are supported for launching. The saved port is always explicit, defaulting to 22.
 - **Check:** inspect explicit key permissions and direct DNS/TCP/SSH-greeting reachability. Cancel a running check. These checks never authenticate; aliases and jump hosts can work even when a direct check fails.
 - **Security:** pause launches from every entry point, inspect the enforced policy, and view the last 200 local activity events. The pause persists across restarts and leaves existing sessions running.
 - **Touch Bar:** a favorite shortcut while Droplet is active on supported Macs, using public `NSTouchBar` APIs. It is not a persistent Control Strip replacement.
 - **Preferences:** opt into starting at login or reduce animation. Closing the window keeps the pet/menu bar available. Escape hides the window; Command-N opens a connection form.
 
-Terminal handles passwords, passphrases, host-key prompts, and session errors. macOS may request Automation permission the first time Droplet opens Terminal. A VPN such as Tailscale must be available if your destination needs it. “Terminal opened” does not mean “SSH authenticated.”
+Terminal handles passwords, passphrases, host-key prompts, and session errors. On Windows, choose PowerShell or Command Prompt in Preferences; both use the installed OpenSSH client. macOS may request Automation permission the first time Droplet opens Terminal. A VPN such as Tailscale must be available if your destination needs it. “Terminal opened” does not mean “SSH authenticated.”
 
 ## What is in Rust
 
@@ -49,7 +51,7 @@ There is no second validation/favorites/SSH implementation in TypeScript. The fr
 
 ## Develop and build
 
-Requirements: macOS 11+, Xcode Command Line Tools, Node.js 22.12+ or a current release, and Rust 1.98+. Verified on Apple Silicon with Rust 1.98.1 and Node.js 26.4.
+Requirements: Node.js 22.12+ or a current release, Rust 1.98+, and the native build tools for the target OS. macOS requires macOS 11+ and Xcode Command Line Tools. Windows requires the MSVC C++ build tools and WebView2 runtime.
 
 ```sh
 source "$HOME/.cargo/env" # if rustup's bin directory is not on PATH
@@ -106,7 +108,7 @@ Settings and local activity live in `~/Library/Application Support/com.jarrod.dr
 
 **SSH config remains trusted local code**, including `ProxyCommand` and `Match exec`. The pause is a convenience lock, not authentication. Activity history is local and not tamper-proof. See [SECURITY.md](SECURITY.md) for exact guarantees, compatibility trade-offs, failure behavior, and known limits.
 
-macOS is the implemented launch target. Windows/Linux adapters and equivalent Windows ACL checks remain future work. The transparent pet uses Tauri's macOS private API feature; the current implementation is intended for direct distribution, not Mac App Store review. This local bundle is ad-hoc signed. Public distribution needs Developer ID signing and notarization.
+Linux terminal adapters and equivalent Linux ACL checks remain future work. The transparent pet uses Tauri's macOS private API feature; the current implementation is intended for direct distribution, not Mac App Store review. This local bundle is ad-hoc signed. Public distribution needs Developer ID signing and notarization.
 
 ## Practical quality decisions
 

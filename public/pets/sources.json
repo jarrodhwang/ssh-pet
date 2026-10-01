@@ -1,0 +1,933 @@
+{
+  "assets": [
+    {
+      "name": "remy",
+      "url": "https://www.pngkit.com/png/detail/938-9388574_ratatouille-ratatouille-remy.png",
+      "page": "https://www.pngkit.com/view/u2y3a9t4y3w7r5q8_ratatouille-ratatouille-remy/",
+      "publisher": "PNGkit (community-hosted character render)",
+      "owner": "Disney / Pixar",
+      "matte": "white",
+      "sourceSha256": "b8f601b4481b2d73f4d290ca5005f5e1cc6ca10c5fc154f08baa5366d4b30ee9",
+      "sourceSize": [
+        820,
+        1602
+      ],
+      "preparedSize": [
+        231,
+        480
+      ],
+      "frameCount": 1,
+      "durationMs": 100,
+      "poster": "/pets/remy-poster.webp",
+      "animation": null,
+      "files": {
+        "remy-poster.webp": {
+          "sha256": "4221ba8900b904fe990cdd7984020b256f6845c37a58e061aa350508ab33f78d",
+          "bytes": 86040
+        }
+      }
+    },
+    {
+      "name": "emile",
+      "url": "https://w7.pngwing.com/pngs/319/12/png-transparent-ratatouille-emile-remy-pixar-animated-film-ratatuille-mammal-food-mouse.png",
+      "page": "https://www.pngwing.com/en/free-png-bmmxp",
+      "publisher": "PNGWing (community-hosted character render)",
+      "owner": "Disney / Pixar",
+      "matte": "white",
+      "sourceSha256": "1ab9beb52ee19083c7c5eb3b3e40cc914b94b9a800d5e9ceb7de240ab03d5961",
+      "sourceSize": [
+        920,
+        927
+      ],
+      "preparedSize": [
+        475,
+        480
+      ],
+      "frameCount": 1,
+      "durationMs": 100,
+      "poster": "/pets/emile-poster.webp",
+      "animation": null,
+      "files": {
+        "emile-poster.webp": {
+          "sha256": "ad2c271d6a93713b707123d5a33758d654756bbfcca323c5a868678968c8bfe4",
+          "bytes": 145386
+        }
+      }
+    },
+    {
+      "name": "pikachu",
+      "url": "https://media.giphy.com/media/FCffpN404oRZpFbSzl/giphy.gif",
+      "page": "https://giphy.com/stickers/FCffpN404oRZpFbSzl",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "279a2eceba90e31388121455d1ac5f139165f6a312c29cf37cb9aa4058f89bd3",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        322,
+        434
+      ],
+      "frameCount": 20,
+      "durationMs": 1600,
+      "poster": "/pets/pikachu-poster.webp",
+      "animation": "/pets/pikachu.webp",
+      "files": {
+        "pikachu-poster.webp": {
+          "sha256": "4aa6870ced56c1ad671f94a8bc93a31cfc12b0a388bbc51e0aa72ec62f7ed505",
+          "bytes": 21720
+        },
+        "pikachu.webp": {
+          "sha256": "9d1e377fa39660633c6f588069a238af46e8d0e06ec044def15f47b984069487",
+          "bytes": 360368
+        }
+      }
+    },
+    {
+      "name": "eevee",
+      "url": "https://media.giphy.com/media/Nk39jnb19T7MjcWTBi/giphy.gif",
+      "page": "https://giphy.com/stickers/Nk39jnb19T7MjcWTBi",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "246a789c0f12f35b1f73d1deb8bfdd544125856e8bc53e8ec2f6257967039b64",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        439,
+        459
+      ],
+      "frameCount": 75,
+      "durationMs": 3000,
+      "poster": "/pets/eevee-poster.webp",
+      "animation": "/pets/eevee.webp",
+      "files": {
+        "eevee-poster.webp": {
+          "sha256": "2d5e3325eb0240e1d60a370c787b415b1219f0931354c2bcf115198dcf5394be",
+          "bytes": 22320
+        },
+        "eevee.webp": {
+          "sha256": "d09f69a32fe31801e0c86fc2cc7bd3f1f59091a27e3aa0d2c208ecfaa8c525cb",
+          "bytes": 1457076
+        }
+      }
+    },
+    {
+      "name": "bulbasaur",
+      "url": "https://media.giphy.com/media/eN6H6Eszm15OwKEONx/giphy.gif",
+      "page": "https://giphy.com/stickers/eN6H6Eszm15OwKEONx",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "ccfa0b3193d773ac92b4dcc44fc4eb0b26af502349537b5ca36ab1a2e6423b56",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        430,
+        373
+      ],
+      "frameCount": 24,
+      "durationMs": 1920,
+      "poster": "/pets/bulbasaur-poster.webp",
+      "animation": "/pets/bulbasaur.webp",
+      "files": {
+        "bulbasaur-poster.webp": {
+          "sha256": "65e72775121cb84e3e1a6e83ad30e4ae50fbe9df878c2a0ff54d3d37f5f21c54",
+          "bytes": 24606
+        },
+        "bulbasaur.webp": {
+          "sha256": "58aedc6a32e62939eee0d9462995af1bd5cd7ad2c6e896daab6c163daafbda03",
+          "bytes": 524314
+        }
+      }
+    },
+    {
+      "name": "charmander",
+      "url": "https://media.giphy.com/media/6xr4bW2csldWKmJkjO/giphy.gif",
+      "page": "https://giphy.com/stickers/6xr4bW2csldWKmJkjO",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "f9ee0b89d1f96250ba3c3170d24816178eb656fde241449603e597dcbec5074a",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        447,
+        394
+      ],
+      "frameCount": 22,
+      "durationMs": 1760,
+      "poster": "/pets/charmander-poster.webp",
+      "animation": "/pets/charmander.webp",
+      "files": {
+        "charmander-poster.webp": {
+          "sha256": "0305f9df12b337bd0606e5a77271a15f7c4243cbd6cb41ca2a575ebbdf062ade",
+          "bytes": 23426
+        },
+        "charmander.webp": {
+          "sha256": "2a1f0c36dba336b230fdc071e4098d48b555b1ca0a6de1ced351f1e3644e8001",
+          "bytes": 463902
+        }
+      }
+    },
+    {
+      "name": "squirtle",
+      "url": "https://media.giphy.com/media/sIo7BCXxPDPNDfS3dE/giphy.gif",
+      "page": "https://giphy.com/stickers/sIo7BCXxPDPNDfS3dE",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "3d91a19f1575265a96cdb82c6dbd8e141c6660730be1bad423208a5ae2431f04",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        286,
+        350
+      ],
+      "frameCount": 22,
+      "durationMs": 1760,
+      "poster": "/pets/squirtle-poster.webp",
+      "animation": "/pets/squirtle.webp",
+      "files": {
+        "squirtle-poster.webp": {
+          "sha256": "91d4be6ebb96961457e649dac63b30982411667868cda3501f142daa01ecceee",
+          "bytes": 22476
+        },
+        "squirtle.webp": {
+          "sha256": "e67473b179c543d00ac66eed6be1582310ee1f916fdcb5a90d7ebe2e58b122f7",
+          "bytes": 471002
+        }
+      }
+    },
+    {
+      "name": "jigglypuff",
+      "url": "https://media.giphy.com/media/70156xKexe2CqBOOSB/giphy.gif",
+      "page": "https://giphy.com/stickers/70156xKexe2CqBOOSB",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "sourceSha256": "be466aa8cb59d31e8c4826dfaa9780627e44b1333187ca72cf26b78d4274b334",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        435,
+        446
+      ],
+      "frameCount": 37,
+      "durationMs": 1480,
+      "poster": "/pets/jigglypuff-poster.webp",
+      "animation": "/pets/jigglypuff.webp",
+      "files": {
+        "jigglypuff-poster.webp": {
+          "sha256": "533418c485dea018fa8acfd24a47201b9c0e6a671f641ae2b07ba8c264362225",
+          "bytes": 55016
+        },
+        "jigglypuff.webp": {
+          "sha256": "4efc0b4717f020dfc18c5c143bcccb70f7fa50b667416b1cfbc196668d5b648b",
+          "bytes": 1581394
+        }
+      }
+    },
+    {
+      "name": "snoopy",
+      "url": "https://media.giphy.com/media/daOM5veK5Mwasb5TLY/giphy.gif",
+      "page": "https://giphy.com/stickers/daOM5veK5Mwasb5TLY",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "crop": [
+        0,
+        0,
+        245,
+        270
+      ],
+      "sourceSha256": "dbf7ae185819b42f1529acae91f30a1163f24014be00a1da1872415b2af92301",
+      "sourceSize": [
+        480,
+        270
+      ],
+      "preparedSize": [
+        163,
+        180
+      ],
+      "frameCount": 56,
+      "durationMs": 2240,
+      "poster": "/pets/snoopy-poster.webp",
+      "animation": "/pets/snoopy.webp",
+      "files": {
+        "snoopy-poster.webp": {
+          "sha256": "e4ef7268fd8e9082dd342a81881900e21972011676f56af7db0c3934d72de58e",
+          "bytes": 3608
+        },
+        "snoopy.webp": {
+          "sha256": "f2df5eee5614a6cd7f023459b6c7c7986e7250627ddb9c031bcd8116c696b45d",
+          "bytes": 121510
+        }
+      }
+    },
+    {
+      "name": "snoopy-dance",
+      "url": "https://media.giphy.com/media/4bz6frJ6gNlCUEExIu/giphy.gif",
+      "page": "https://giphy.com/stickers/4bz6frJ6gNlCUEExIu",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "sourceSha256": "a600b8399617fc79434b6a5552cd0968d0be7c4281d5f90c6550927cadeada97",
+      "sourceSize": [
+        500,
+        500
+      ],
+      "preparedSize": [
+        421,
+        444
+      ],
+      "frameCount": 121,
+      "durationMs": 4840,
+      "poster": "/pets/snoopy-dance-poster.webp",
+      "animation": "/pets/snoopy-dance.webp",
+      "files": {
+        "snoopy-dance-poster.webp": {
+          "sha256": "367a3a753d74ad94ac19555857754f80a60aa488d0a3e12731f4295db7dd1849",
+          "bytes": 14782
+        },
+        "snoopy-dance.webp": {
+          "sha256": "b76fed0f0851f64ce7615e3bcf5b248acd5b3b97795c64cf346376f6f1d0a383",
+          "bytes": 1342452
+        }
+      }
+    },
+    {
+      "name": "woodstock",
+      "url": "https://media.giphy.com/media/jptAHfCnH8rSgVSjcE/giphy.gif",
+      "page": "https://giphy.com/stickers/jptAHfCnH8rSgVSjcE",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "sourceSha256": "e034021d4ac269c2f26e2ae0d6442fa1cc15998b9388d1d4ec771b626dee7313",
+      "sourceSize": [
+        480,
+        270
+      ],
+      "preparedSize": [
+        170,
+        161
+      ],
+      "frameCount": 16,
+      "durationMs": 1070,
+      "poster": "/pets/woodstock-poster.webp",
+      "animation": "/pets/woodstock.webp",
+      "files": {
+        "woodstock-poster.webp": {
+          "sha256": "caaf376c3cee4b351bea62c9ff85c136de389b871097e4799d58aa971f55897e",
+          "bytes": 2726
+        },
+        "woodstock.webp": {
+          "sha256": "1094138b21b364e0c0658328c468d97c42890097680d65c81754a5d5468d5e8d",
+          "bytes": 38944
+        }
+      }
+    },
+    {
+      "name": "belle",
+      "url": "https://media.giphy.com/media/3UPF60aOXPYbpljc9m/giphy.gif",
+      "page": "https://giphy.com/stickers/3UPF60aOXPYbpljc9m",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "crop": [
+        241,
+        65,
+        449,
+        357
+      ],
+      "matte": "yellow",
+      "component": true,
+      "sourceSha256": "085c80243622ac8bba61abbe2dee6f646c301dddd61064fad13307754e79464e",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        188,
+        287
+      ],
+      "frameCount": 80,
+      "durationMs": 3200,
+      "poster": "/pets/belle-poster.webp",
+      "animation": "/pets/belle.webp",
+      "files": {
+        "belle-poster.webp": {
+          "sha256": "bfc8a132275bac91ddaf024b3d4ec1130632911fb11847b92f1d22b8875c4717",
+          "bytes": 11430
+        },
+        "belle.webp": {
+          "sha256": "1b6c10a611f9feb63bcf70131d81e2b435ca19b813e64b33cbf217094201c3bf",
+          "bytes": 414562
+        }
+      }
+    },
+    {
+      "name": "remy-cheese",
+      "url": "https://media.giphy.com/media/PylzSrsqgmmqkisroH/giphy.gif",
+      "page": "https://giphy.com/gifs/PylzSrsqgmmqkisroH",
+      "publisher": "Disney",
+      "owner": "Disney / Pixar",
+      "frames": [
+        0,
+        14
+      ],
+      "film": true,
+      "sourceSha256": "93dc00810a004bc0a313b8a27068a9ce02a58eb8a750be603ab40adee188360a",
+      "sourceSize": [
+        480,
+        360
+      ],
+      "preparedSize": [
+        480,
+        360
+      ],
+      "frameCount": 14,
+      "durationMs": 930,
+      "poster": "/pets/remy-cheese-poster.webp",
+      "animation": "/pets/remy-cheese.webp",
+      "files": {
+        "remy-cheese-poster.webp": {
+          "sha256": "b1018c9a92e293b207c296611f4ee3230c36ed91a93799ee838c413a1c5d1165",
+          "bytes": 36840
+        },
+        "remy-cheese.webp": {
+          "sha256": "f4d00addd873704031305c91e3cf173d3260763e6f4f2f0799cfe7384a0f9fea",
+          "bytes": 703554
+        }
+      }
+    },
+    {
+      "name": "remy-strawberry",
+      "url": "https://media.giphy.com/media/PylzSrsqgmmqkisroH/giphy.gif",
+      "page": "https://giphy.com/gifs/PylzSrsqgmmqkisroH",
+      "publisher": "Disney",
+      "owner": "Disney / Pixar",
+      "frames": [
+        14,
+        28
+      ],
+      "film": true,
+      "sourceSha256": "93dc00810a004bc0a313b8a27068a9ce02a58eb8a750be603ab40adee188360a",
+      "sourceSize": [
+        480,
+        360
+      ],
+      "preparedSize": [
+        480,
+        360
+      ],
+      "frameCount": 14,
+      "durationMs": 940,
+      "poster": "/pets/remy-strawberry-poster.webp",
+      "animation": "/pets/remy-strawberry.webp",
+      "files": {
+        "remy-strawberry-poster.webp": {
+          "sha256": "d3fb8d1a0190862e386430ad60a7bf5be585372f46509573fd341feb1a4028dd",
+          "bytes": 36050
+        },
+        "remy-strawberry.webp": {
+          "sha256": "92c1413e5a2326fa48a33b64eafe1e3bf9372c5ef6d294d4da9eeebf93841608",
+          "bytes": 744930
+        }
+      }
+    },
+    {
+      "name": "emile-snack",
+      "url": "https://media.giphy.com/media/jnkvKeUHWnRYs/giphy.gif",
+      "page": "https://giphy.com/gifs/jnkvKeUHWnRYs",
+      "publisher": "Disney Pixar",
+      "owner": "Disney / Pixar",
+      "crop": [
+        250,
+        0,
+        500,
+        187
+      ],
+      "film": true,
+      "sourceSha256": "4522697814992d239795ee3eb66f40094f3d2c20c67ae14c482533ad9c660599",
+      "sourceSize": [
+        500,
+        187
+      ],
+      "preparedSize": [
+        250,
+        187
+      ],
+      "frameCount": 24,
+      "durationMs": 4800,
+      "poster": "/pets/emile-snack-poster.webp",
+      "animation": "/pets/emile-snack.webp",
+      "files": {
+        "emile-snack-poster.webp": {
+          "sha256": "157e21e8e7111aa9eb3a1ed54d624196f1b63cf9125af38aa1a5f0780578fc03",
+          "bytes": 5756
+        },
+        "emile-snack.webp": {
+          "sha256": "79d527e6a79227d360e9189a43f156537886be70ab369f775bcbff607b795b23",
+          "bytes": 310272
+        }
+      }
+    },
+    {
+      "name": "pikachu-quiet",
+      "url": "https://media.giphy.com/media/FCffpN404oRZpFbSzl/giphy.gif",
+      "page": "https://giphy.com/stickers/FCffpN404oRZpFbSzl",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        7
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "279a2eceba90e31388121455d1ac5f139165f6a312c29cf37cb9aa4058f89bd3",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        322,
+        434
+      ],
+      "pixelCrop": [
+        99,
+        27,
+        421,
+        461
+      ],
+      "frameCount": 12,
+      "durationMs": 7840,
+      "poster": "/pets/pikachu-quiet-poster.webp",
+      "animation": "/pets/pikachu-quiet.webp",
+      "files": {
+        "pikachu-quiet-poster.webp": {
+          "sha256": "4aa6870ced56c1ad671f94a8bc93a31cfc12b0a388bbc51e0aa72ec62f7ed505",
+          "bytes": 21720
+        },
+        "pikachu-quiet.webp": {
+          "sha256": "b4746f42626ae23ce6145e1b52ebcb9ef821e946e9e65add734dcdbd1b1cd5bb",
+          "bytes": 228246
+        }
+      }
+    },
+    {
+      "name": "eevee-quiet",
+      "url": "https://media.giphy.com/media/Nk39jnb19T7MjcWTBi/giphy.gif",
+      "page": "https://giphy.com/stickers/Nk39jnb19T7MjcWTBi",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "246a789c0f12f35b1f73d1deb8bfdd544125856e8bc53e8ec2f6257967039b64",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        439,
+        459
+      ],
+      "pixelCrop": [
+        0,
+        5,
+        439,
+        464
+      ],
+      "frameCount": 10,
+      "durationMs": 5600,
+      "poster": "/pets/eevee-quiet-poster.webp",
+      "animation": "/pets/eevee-quiet.webp",
+      "files": {
+        "eevee-quiet-poster.webp": {
+          "sha256": "2d5e3325eb0240e1d60a370c787b415b1219f0931354c2bcf115198dcf5394be",
+          "bytes": 22320
+        },
+        "eevee-quiet.webp": {
+          "sha256": "9ecf8932d5a3d7bb4147e534ec655393ab8f87c9914e5e040faf083bb85d345e",
+          "bytes": 197924
+        }
+      }
+    },
+    {
+      "name": "bulbasaur-quiet",
+      "url": "https://media.giphy.com/media/eN6H6Eszm15OwKEONx/giphy.gif",
+      "page": "https://giphy.com/stickers/eN6H6Eszm15OwKEONx",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "ccfa0b3193d773ac92b4dcc44fc4eb0b26af502349537b5ca36ab1a2e6423b56",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        430,
+        373
+      ],
+      "pixelCrop": [
+        0,
+        59,
+        430,
+        432
+      ],
+      "frameCount": 10,
+      "durationMs": 7200,
+      "poster": "/pets/bulbasaur-quiet-poster.webp",
+      "animation": "/pets/bulbasaur-quiet.webp",
+      "files": {
+        "bulbasaur-quiet-poster.webp": {
+          "sha256": "65e72775121cb84e3e1a6e83ad30e4ae50fbe9df878c2a0ff54d3d37f5f21c54",
+          "bytes": 24606
+        },
+        "bulbasaur-quiet.webp": {
+          "sha256": "e5b3e94f16b71ae9a96ef7249da84043c776983861f68373ac07d3edb8361e17",
+          "bytes": 211880
+        }
+      }
+    },
+    {
+      "name": "charmander-quiet",
+      "url": "https://media.giphy.com/media/6xr4bW2csldWKmJkjO/giphy.gif",
+      "page": "https://giphy.com/stickers/6xr4bW2csldWKmJkjO",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "f9ee0b89d1f96250ba3c3170d24816178eb656fde241449603e597dcbec5074a",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        447,
+        394
+      ],
+      "pixelCrop": [
+        14,
+        58,
+        461,
+        452
+      ],
+      "frameCount": 10,
+      "durationMs": 7200,
+      "poster": "/pets/charmander-quiet-poster.webp",
+      "animation": "/pets/charmander-quiet.webp",
+      "files": {
+        "charmander-quiet-poster.webp": {
+          "sha256": "0305f9df12b337bd0606e5a77271a15f7c4243cbd6cb41ca2a575ebbdf062ade",
+          "bytes": 23426
+        },
+        "charmander-quiet.webp": {
+          "sha256": "6307a2c43d7d148bdba4c592295bdc3559d203132e0d1d411ff7edfc317ffd30",
+          "bytes": 212316
+        }
+      }
+    },
+    {
+      "name": "squirtle-quiet",
+      "url": "https://media.giphy.com/media/sIo7BCXxPDPNDfS3dE/giphy.gif",
+      "page": "https://giphy.com/stickers/sIo7BCXxPDPNDfS3dE",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "3d91a19f1575265a96cdb82c6dbd8e141c6660730be1bad423208a5ae2431f04",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        286,
+        350
+      ],
+      "pixelCrop": [
+        103,
+        78,
+        389,
+        428
+      ],
+      "frameCount": 10,
+      "durationMs": 7200,
+      "poster": "/pets/squirtle-quiet-poster.webp",
+      "animation": "/pets/squirtle-quiet.webp",
+      "files": {
+        "squirtle-quiet-poster.webp": {
+          "sha256": "91d4be6ebb96961457e649dac63b30982411667868cda3501f142daa01ecceee",
+          "bytes": 22476
+        },
+        "squirtle-quiet.webp": {
+          "sha256": "a964b82c57f5ac73248a2769cd70eca19154a3447f0b47912f6199171aed6d49",
+          "bytes": 198672
+        }
+      }
+    },
+    {
+      "name": "jigglypuff-quiet",
+      "url": "https://media.giphy.com/media/70156xKexe2CqBOOSB/giphy.gif",
+      "page": "https://giphy.com/stickers/70156xKexe2CqBOOSB",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "be466aa8cb59d31e8c4826dfaa9780627e44b1333187ca72cf26b78d4274b334",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        435,
+        446
+      ],
+      "pixelCrop": [
+        26,
+        28,
+        461,
+        474
+      ],
+      "frameCount": 10,
+      "durationMs": 5600,
+      "poster": "/pets/jigglypuff-quiet-poster.webp",
+      "animation": "/pets/jigglypuff-quiet.webp",
+      "files": {
+        "jigglypuff-quiet-poster.webp": {
+          "sha256": "533418c485dea018fa8acfd24a47201b9c0e6a671f641ae2b07ba8c264362225",
+          "bytes": 55016
+        },
+        "jigglypuff-quiet.webp": {
+          "sha256": "8842cb8fa3d6b229b757bdc7fa0f75b7a52965674560b03ccc83c8feaafab4e6",
+          "bytes": 466616
+        }
+      }
+    },
+    {
+      "name": "snoopy-quiet",
+      "url": "https://media.giphy.com/media/daOM5veK5Mwasb5TLY/giphy.gif",
+      "page": "https://giphy.com/stickers/daOM5veK5Mwasb5TLY",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "crop": [
+        0,
+        0,
+        245,
+        270
+      ],
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "dbf7ae185819b42f1529acae91f30a1163f24014be00a1da1872415b2af92301",
+      "sourceSize": [
+        480,
+        270
+      ],
+      "preparedSize": [
+        163,
+        180
+      ],
+      "pixelCrop": [
+        69,
+        51,
+        232,
+        231
+      ],
+      "frameCount": 10,
+      "durationMs": 5600,
+      "poster": "/pets/snoopy-quiet-poster.webp",
+      "animation": "/pets/snoopy-quiet.webp",
+      "files": {
+        "snoopy-quiet-poster.webp": {
+          "sha256": "e4ef7268fd8e9082dd342a81881900e21972011676f56af7db0c3934d72de58e",
+          "bytes": 3608
+        },
+        "snoopy-quiet.webp": {
+          "sha256": "6bdd8718e154a3b773512847166076091fdae2338808305ad3a4f6aefb970f0b",
+          "bytes": 22014
+        }
+      }
+    },
+    {
+      "name": "woodstock-quiet",
+      "url": "https://media.giphy.com/media/jptAHfCnH8rSgVSjcE/giphy.gif",
+      "page": "https://giphy.com/stickers/jptAHfCnH8rSgVSjcE",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "e034021d4ac269c2f26e2ae0d6442fa1cc15998b9388d1d4ec771b626dee7313",
+      "sourceSize": [
+        480,
+        270
+      ],
+      "preparedSize": [
+        170,
+        161
+      ],
+      "pixelCrop": [
+        186,
+        76,
+        356,
+        237
+      ],
+      "frameCount": 10,
+      "durationMs": 6280,
+      "poster": "/pets/woodstock-quiet-poster.webp",
+      "animation": "/pets/woodstock-quiet.webp",
+      "files": {
+        "woodstock-quiet-poster.webp": {
+          "sha256": "caaf376c3cee4b351bea62c9ff85c136de389b871097e4799d58aa971f55897e",
+          "bytes": 2726
+        },
+        "woodstock-quiet.webp": {
+          "sha256": "091c66b5c11f0460c1cd52956aec65242357c348d42c4f74e1cfe8fe74ee5026",
+          "bytes": 17318
+        }
+      }
+    },
+    {
+      "name": "belle-quiet",
+      "url": "https://media.giphy.com/media/3UPF60aOXPYbpljc9m/giphy.gif",
+      "page": "https://giphy.com/stickers/3UPF60aOXPYbpljc9m",
+      "publisher": "Peanuts",
+      "owner": "Peanuts Worldwide LLC",
+      "crop": [
+        241,
+        65,
+        449,
+        357
+      ],
+      "matte": "yellow",
+      "component": true,
+      "frames": [
+        0,
+        6
+      ],
+      "timeScale": 4,
+      "pingPong": true,
+      "holdMs": 4000,
+      "wholeSourceBounds": true,
+      "sourceSha256": "085c80243622ac8bba61abbe2dee6f646c301dddd61064fad13307754e79464e",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        188,
+        287
+      ],
+      "pixelCrop": [
+        0,
+        5,
+        188,
+        292
+      ],
+      "frameCount": 10,
+      "durationMs": 5600,
+      "poster": "/pets/belle-quiet-poster.webp",
+      "animation": "/pets/belle-quiet.webp",
+      "files": {
+        "belle-quiet-poster.webp": {
+          "sha256": "bfc8a132275bac91ddaf024b3d4ec1130632911fb11847b92f1d22b8875c4717",
+          "bytes": 11430
+        },
+        "belle-quiet.webp": {
+          "sha256": "d085a414088bdeac928bb4cc10b21cbaa0afa5e8b8a65f4f7827d08dbd9c28cc",
+          "bytes": 55614
+        }
+      }
+    },
+    {
+      "name": "pikachu-idle",
+      "url": "https://media.giphy.com/media/FCffpN404oRZpFbSzl/giphy.gif",
+      "page": "https://giphy.com/stickers/FCffpN404oRZpFbSzl",
+      "publisher": "Pok\u00e9mon",
+      "owner": "The Pok\u00e9mon Company",
+      "frames": [
+        0,
+        7
+      ],
+      "timeScale": 2,
+      "pingPong": true,
+      "holdMs": 2200,
+      "wholeSourceBounds": true,
+      "sourceSha256": "279a2eceba90e31388121455d1ac5f139165f6a312c29cf37cb9aa4058f89bd3",
+      "sourceSize": [
+        480,
+        480
+      ],
+      "preparedSize": [
+        322,
+        434
+      ],
+      "pixelCrop": [
+        99,
+        27,
+        421,
+        461
+      ],
+      "frameCount": 12,
+      "durationMs": 4120,
+      "poster": "/pets/pikachu-idle-poster.webp",
+      "animation": "/pets/pikachu-idle.webp",
+      "files": {
+        "pikachu-idle-poster.webp": {
+          "sha256": "4aa6870ced56c1ad671f94a8bc93a31cfc12b0a388bbc51e0aa72ec62f7ed505",
+          "bytes": 21720
+        },
+        "pikachu-idle.webp": {
+          "sha256": "55ddae3c9f7d792980481c0601454e76b64f0c075a49eb5f1ae92405814b609a",
+          "bytes": 228246
+        }
+      }
+    }
+  ]
+}

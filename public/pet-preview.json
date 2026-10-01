@@ -1,4 +1,7 @@
 {
+  "pet": "droplet",
+  "name": "Droplet",
+  "theme": "droplet",
   "mood": "idle",
   "tooltip": "Double-click → Zbook Studio",
   "status": "Ready when you are",

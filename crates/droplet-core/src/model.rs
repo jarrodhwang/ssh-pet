@@ -95,11 +95,32 @@ impl Connection {
     }
 }
 
+#[derive(Clone, Debug, Default, Deserialize, Serialize, TS, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum TerminalShell {
+    #[default]
+    PowerShell,
+    CommandPrompt,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, TS)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct Preferences {
+    pub pet: crate::pets::PetKind,
     pub pet_visible: bool,
     pub reduce_motion: bool,
+    pub terminal_shell: TerminalShell,
+}
+
+impl Default for Preferences {
+    fn default() -> Self {
+        Self {
+            pet: crate::pets::PetKind::default(),
+            pet_visible: true,
+            reduce_motion: false,
+            terminal_shell: TerminalShell::default(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -111,11 +132,13 @@ pub struct PetPosition {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct Config {
+    pub pet: crate::pets::PetKind,
     pub version: u32,
     pub connections: Vec<Connection>,
     pub favorite_id: Option<String>,
     pub pet_visible: bool,
     pub reduce_motion: bool,
+    pub terminal_shell: TerminalShell,
     pub pet_position: Option<PetPosition>,
     pub launch_locked: bool,
 }
@@ -123,11 +146,13 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
+            pet: crate::pets::PetKind::default(),
             version: 1,
             connections: vec![],
             favorite_id: None,
             pet_visible: true,
             reduce_motion: false,
+            terminal_shell: TerminalShell::default(),
             pet_position: None,
             launch_locked: false,
         }
@@ -266,10 +291,9 @@ mod tests {
 
     #[test]
     fn import_handles_quoted_keys_and_ipv6() {
-        let result =
-            parse_launcher("ssh -p 2222 -i '/Users/dev/My Keys/id' dev@::1", "IPv6").unwrap();
+        let result = parse_launcher("ssh -p 2222 -i '~/My Keys/id' dev@::1", "IPv6").unwrap();
         assert_eq!(result.port, 2222);
-        assert_eq!(result.identity_file, "/Users/dev/My Keys/id");
+        assert_eq!(result.identity_file, "~/My Keys/id");
         assert_eq!(result.host, "::1");
     }
 

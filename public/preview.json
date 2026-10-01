@@ -1,7 +1,81 @@
 {
+  "petThemes": [
+    {
+      "id": "remy",
+      "name": "Remy",
+      "pets": [
+        {
+          "id": "remy",
+          "name": "Remy"
+        },
+        {
+          "id": "emile",
+          "name": "Emile"
+        }
+      ]
+    },
+    {
+      "id": "pokemon",
+      "name": "Pokémon",
+      "pets": [
+        {
+          "id": "pikachu",
+          "name": "Pikachu"
+        },
+        {
+          "id": "eevee",
+          "name": "Eevee"
+        },
+        {
+          "id": "bulbasaur",
+          "name": "Bulbasaur"
+        },
+        {
+          "id": "charmander",
+          "name": "Charmander"
+        },
+        {
+          "id": "squirtle",
+          "name": "Squirtle"
+        },
+        {
+          "id": "jigglypuff",
+          "name": "Jigglypuff"
+        }
+      ]
+    },
+    {
+      "id": "snoopy",
+      "name": "Snoopy",
+      "pets": [
+        {
+          "id": "snoopy",
+          "name": "Snoopy"
+        },
+        {
+          "id": "woodstock",
+          "name": "Woodstock"
+        },
+        {
+          "id": "belle",
+          "name": "Belle"
+        }
+      ]
+    },
+    {
+      "id": "droplet",
+      "name": "Droplet",
+      "pets": [
+        {
+          "id": "droplet",
+          "name": "Droplet"
+        }
+      ]
+    }
+  ],
   "connections": [
     {
-      "id": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd",
+      "id": "533f1542-3ea0-4fd5-a363-afdd6b619aa1",
       "name": "Zbook Studio",
       "address": "you@studio.local",
       "authLabel": "SSH config / agent",
@@ -11,7 +85,7 @@
       "connectLabel": "Connect",
       "canDiagnose": true,
       "draft": {
-        "id": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd",
+        "id": "533f1542-3ea0-4fd5-a363-afdd6b619aa1",
         "name": "Zbook Studio",
         "host": "studio.local",
         "username": "you",
@@ -23,23 +97,28 @@
   ],
   "connectionCount": 1,
   "preferences": {
+    "pet": "droplet",
     "petVisible": true,
-    "reduceMotion": false
+    "reduceMotion": false,
+    "terminalShell": "powerShell"
   },
   "launchLocked": false,
   "diagnosticRunning": false,
   "activity": [
     {
-      "id": "80ee6397-747d-4745-a2c9-c19810575f6a",
-      "timestamp": 1789675613790,
+      "id": "858d8f2c-8818-479b-9a28-89b0a65ab899",
+      "timestamp": 1790879735698,
       "action": "connection imported",
       "outcome": "requested",
-      "connectionId": "4fd0527c-d6ba-472b-92d2-5c3b3521b2cd"
+      "connectionId": "533f1542-3ea0-4fd5-a363-afdd6b619aa1"
     }
   ],
   "notice": null,
   "loadError": null,
   "pet": {
+    "pet": "droplet",
+    "name": "Droplet",
+    "theme": "droplet",
     "mood": "idle",
     "tooltip": "Double-click → Zbook Studio",
     "status": "Ready when you are",
@@ -54,5 +133,5 @@
     "Launch cooldown and window permissions enforced"
   ],
   "startAtLogin": false,
-  "platform": "macos"
+  "platform": "windows"
 }

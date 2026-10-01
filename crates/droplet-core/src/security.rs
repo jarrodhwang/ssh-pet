@@ -46,7 +46,20 @@ pub struct LaunchSpec {
 impl LaunchSpec {
     pub fn shell_command(&self) -> String {
         std::iter::once(self.program.to_owned())
-            .chain(self.args.iter().map(|arg| shell_quote(arg)))
+            .chain(self.args.iter().map(|arg| {
+                if cfg!(windows) {
+                    powershell_quote(arg)
+                } else {
+                    shell_quote(arg)
+                }
+            }))
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    pub fn cmd_command(&self) -> String {
+        std::iter::once(self.program.to_owned())
+            .chain(self.args.iter().map(|arg| cmd_quote(arg)))
             .collect::<Vec<_>>()
             .join(" ")
     }
@@ -54,6 +67,21 @@ impl LaunchSpec {
 
 pub fn shell_quote(value: &str) -> String {
     format!("'{}'", value.replace('\'', "'\\''"))
+}
+
+fn powershell_quote(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "''"))
+}
+
+fn cmd_quote(value: &str) -> String {
+    let mut escaped = String::with_capacity(value.len());
+    for character in value.chars() {
+        if matches!(character, '^' | '&' | '|' | '<' | '>' | '(' | ')' | '!') {
+            escaped.push('^');
+        }
+        escaped.push(character);
+    }
+    format!("\"{}\"", escaped.replace('"', "\\\""))
 }
 
 pub fn launch_spec(connection: &Connection, home: &Path) -> Result<LaunchSpec> {
@@ -103,7 +131,11 @@ pub fn launch_spec(connection: &Connection, home: &Path) -> Result<LaunchSpec> {
         connection.destination(),
     ]);
     Ok(LaunchSpec {
-        program: "/usr/bin/ssh",
+        program: if cfg!(windows) {
+            "ssh.exe"
+        } else {
+            "/usr/bin/ssh"
+        },
         args,
     })
 }

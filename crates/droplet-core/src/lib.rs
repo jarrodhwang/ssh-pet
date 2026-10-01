@@ -1,6 +1,7 @@
 pub mod diagnostics;
 pub mod error;
 pub mod model;
+pub mod pets;
 pub mod protocol;
 pub mod security;
 pub mod service;

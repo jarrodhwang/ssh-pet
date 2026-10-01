@@ -33,7 +33,10 @@ fn os_error(error: impl std::fmt::Display) -> AppError {
     AppError::new(ErrorCode::Process, error.to_string())
 }
 fn read_config(app: &tauri::AppHandle) -> Result<Config> {
-    app.state::<AppState>().core.config()
+    app.try_state::<AppState>()
+        .ok_or_else(|| os_error("Droplet is still starting."))?
+        .core
+        .config()
 }
 
 #[tauri::command]
@@ -47,7 +50,11 @@ async fn main_command(
 }
 
 async fn dispatch(app: &tauri::AppHandle, request: MainRequest) -> Result<Reply> {
-    let core = app.state::<AppState>().core.clone();
+    let core = app
+        .try_state::<AppState>()
+        .ok_or_else(|| os_error("Droplet is still starting."))?
+        .core
+        .clone();
     match request {
         MainRequest::View { query } => {
             let mut view = core.view(&query)?;
@@ -83,6 +90,8 @@ async fn dispatch(app: &tauri::AppHandle, request: MainRequest) -> Result<Reply>
                 Preferences {
                     pet_visible: true,
                     reduce_motion: config.reduce_motion,
+                    terminal_shell: config.terminal_shell,
+                    pet: config.pet,
                 },
             )
             .await
@@ -92,7 +101,11 @@ async fn dispatch(app: &tauri::AppHandle, request: MainRequest) -> Result<Reply>
     }
 }
 async fn preferences(app: &tauri::AppHandle, value: Preferences) -> Result<Reply> {
-    let core = app.state::<AppState>().core.clone();
+    let core = app
+        .try_state::<AppState>()
+        .ok_or_else(|| os_error("Droplet is still starting."))?
+        .core
+        .clone();
     let previous = core.config()?;
     let pet = app
         .get_webview_window("pet")
@@ -116,9 +129,13 @@ async fn preferences(app: &tauri::AppHandle, value: Preferences) -> Result<Reply
     result
 }
 async fn launch(app: &tauri::AppHandle, id: Option<&str>) -> Result<()> {
-    let core = app.state::<AppState>().core.clone();
+    let core = app
+        .try_state::<AppState>()
+        .ok_or_else(|| os_error("Droplet is still starting."))?
+        .core
+        .clone();
     let lease = core.begin_launch(id)?;
-    let result = terminal::launch(&lease.spec).await;
+    let result = terminal::launch(&lease.spec, lease.terminal_shell.clone()).await;
     lease.finish(result)
 }
 fn connect_favorite(app: &tauri::AppHandle) {
@@ -149,7 +166,11 @@ async fn pet_command(
     request: PetRequest,
 ) -> Result<PetReply> {
     security::authorize(window.label(), "pet")?;
-    let core = app.state::<AppState>().core.clone();
+    let core = app
+        .try_state::<AppState>()
+        .ok_or_else(|| os_error("Droplet is still starting."))?
+        .core
+        .clone();
     match request {
         PetRequest::View => return core.pet().map(PetReply::View),
         PetRequest::OpenLauncher => show_launcher(app.clone())?,
@@ -161,7 +182,9 @@ async fn pet_command(
         }
         PetRequest::BeginDrag { x, y } => {
             check_coordinates(x, y)?;
-            let state = app.state::<AppState>();
+            let state = app
+                .try_state::<AppState>()
+                .ok_or_else(|| os_error("Droplet is still starting."))?;
             *state.drag.lock().map_err(os_error)? = Some(Drag {
                 x,
                 y,
@@ -172,7 +195,9 @@ async fn pet_command(
         }
         PetRequest::Drag { x, y } => {
             check_coordinates(x, y)?;
-            let state = app.state::<AppState>();
+            let state = app
+                .try_state::<AppState>()
+                .ok_or_else(|| os_error("Droplet is still starting."))?;
             let drag = state.drag.lock().map_err(os_error)?;
             let drag = drag
                 .as_ref()
@@ -190,7 +215,9 @@ async fn pet_command(
                 .map_err(os_error)?;
         }
         PetRequest::EndDrag => {
-            let state = app.state::<AppState>();
+            let state = app
+                .try_state::<AppState>()
+                .ok_or_else(|| os_error("Droplet is still starting."))?;
             let had_drag = state.drag.lock().map_err(os_error)?.take().is_some();
             if had_drag {
                 let p = window.outer_position().map_err(os_error)?;
@@ -272,7 +299,9 @@ fn position_pet(app: &tauri::AppHandle, saved: Option<PetPosition>) -> Result<()
 
 fn make_tray_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
     let config = read_config(app).unwrap_or_default();
-    let view = app.state::<AppState>().core.pet().ok();
+    let view = app
+        .try_state::<AppState>()
+        .and_then(|state| state.core.pet().ok());
     let name = config
         .connections
         .iter()
@@ -365,6 +394,8 @@ fn tray_action(app: &tauri::AppHandle, action: &str) {
                 preferences: Preferences {
                     pet_visible: !c.pet_visible,
                     reduce_motion: c.reduce_motion,
+                    terminal_shell: c.terminal_shell,
+                    pet: c.pet,
                 },
             },
             "reset-pet" => MainRequest::ResetPet,
@@ -440,8 +471,11 @@ pub fn run() {
             #[cfg(target_os = "macos")]
             touchbar::install(&handle);
             if !std::env::args().any(|arg| arg == "--background") {
-                show_launcher(handle)?;
+                show_launcher(handle.clone())?;
             }
+            // Renderers can request their view before setup has registered AppState.
+            // Publish readiness after subscribing renderers can safely read the core.
+            handle.emit("state-changed", ())?;
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -458,6 +492,8 @@ pub fn run() {
                                 Preferences {
                                     pet_visible: false,
                                     reduce_motion: c.reduce_motion,
+                                    terminal_shell: c.terminal_shell,
+                                    pet: c.pet,
                                 },
                             )
                             .await
