@@ -138,8 +138,8 @@ input::placeholder, textarea::placeholder { color: #596f7d; opacity: 1; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .pet-window, .pet-window #app { background: transparent !important; min-height: 0; height: 100%; overflow: hidden; }
 html:has(.pet-window) { background: transparent !important; height: 100%; overflow: hidden; }
-.desktop-pet { width: 280px; height: 280px; position: relative; display: flex; align-items: flex-end; justify-content: center; }
-.pet-button { width: 276px; height: 262px; margin: 0 0 4px; background: transparent; border: 0; padding: 0; cursor: grab; touch-action: none; display: flex; align-items: flex-end; justify-content: center; }
+.desktop-pet { width: 160px; height: 160px; position: relative; display: flex; align-items: flex-end; justify-content: center; }
+.pet-button { width: 152px; height: 152px; margin: 0 0 4px; background: transparent; border: 0; padding: 0; cursor: grab; touch-action: none; display: flex; align-items: flex-end; justify-content: center; }
 .pet-button:active { cursor: grabbing; }
 .pet-button:focus-visible { outline: 1px dashed #6babcb; border-radius: 50%; outline-offset: -5px; }
 .pet-button .droplet-art { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 3px #12517c26); }
