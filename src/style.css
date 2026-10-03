@@ -144,8 +144,6 @@ html:has(.pet-window) { background: transparent !important; height: 100%; overfl
 .pet-button:focus-visible { outline: 1px dashed #6babcb; border-radius: 50%; outline-offset: -5px; }
 .pet-button .droplet-art { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 3px #12517c26); }
 .pet-button > svg.droplet-art { width: 140px; height: 146px; }
-.pet-tooltip { opacity: 0; position: absolute; top: 2px; left: 50%; transform: translateX(-50%); border: 1px solid #e1edf3; background: #f5fbffff; box-shadow: 0 2px 6px #245d8422; border-radius: 6px; color: #596f7d; font-size: 8px; padding: 4px 5px; max-width: 140px; width: max-content; pointer-events: none; text-align: center; transition: opacity .2s; }
-.desktop-pet:hover .pet-tooltip, .desktop-pet:focus-within .pet-tooltip { opacity: 1; }
 .pet-status { position: absolute; bottom: 1px; font-size: 8px; color: #2e617d; background: #eef9ffff; padding: 3px 5px; border-radius: 5px; display: none; }
 .pet-opening .pet-status { display: block; }
 .pet-opening .drop-body { animation: bob .65s ease-in-out infinite; }

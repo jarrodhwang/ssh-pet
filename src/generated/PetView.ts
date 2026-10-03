@@ -3,4 +3,4 @@ import type { PetKind } from "./PetKind";
 import type { PetMood } from "./PetMood";
 import type { PetTheme } from "./PetTheme";
 
-export type PetView = { pet: PetKind, name: string, theme: PetTheme, mood: PetMood, tooltip: string, status: string, reduceMotion: boolean, canConnect: boolean, };
+export type PetView = { pet: PetKind, name: string, theme: PetTheme, mood: PetMood, status: string, reduceMotion: boolean, canConnect: boolean, };

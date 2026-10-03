@@ -15,7 +15,7 @@ Open `Droplet.app`. On first launch, Droplet imports the plain SSH invocation in
 - **Connection window:** add, edit, remove, favorite, search, or import a plain SSH command with `-i` and `-p`. SSH aliases are supported for launching. The saved port is always explicit, defaulting to 22.
 - **Check:** inspect explicit key permissions and direct DNS/TCP/SSH-greeting reachability. Cancel a running check. These checks never authenticate; aliases and jump hosts can work even when a direct check fails.
 - **Security:** pause launches from every entry point, inspect the enforced policy, and view the last 200 local activity events. The pause persists across restarts and leaves existing sessions running.
-- **Touch Bar:** a favorite shortcut while Droplet is active on supported Macs, using public `NSTouchBar` APIs. It is not a persistent Control Strip replacement.
+- **Touch Bar:** a horizontally scrollable list of connection shortcuts while Droplet is active on supported Macs. The favorite is highlighted, using public `NSTouchBar` APIs. It is not a persistent Control Strip replacement.
 - **Preferences:** opt into starting at login or reduce animation. Closing the window keeps the pet/menu bar available. Escape hides the window; Command-N opens a connection form.
 
 Terminal handles passwords, passphrases, host-key prompts, and session errors. On Windows, choose PowerShell or Command Prompt in Preferences; both use the installed OpenSSH client. macOS may request Automation permission the first time Droplet opens Terminal. A VPN such as Tailscale must be available if your destination needs it. “Terminal opened” does not mean “SSH authenticated.”

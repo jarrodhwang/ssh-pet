@@ -205,20 +205,12 @@ impl Core {
             && !state.config.launch_locked
             && state.launching.is_none()
             && state.load_error.is_none();
-        let tooltip = if state.config.launch_locked {
-            "Launches paused · click to open Droplet".into()
-        } else {
-            favorite
-                .map(|c| format!("Double-click → {}", c.name))
-                .unwrap_or_else(|| "Click to add your first connection".into())
-        };
         PetView {
             pet: state.config.pet,
             name: state.config.pet.name().into(),
             theme: state.config.pet.theme(),
             mood,
             status: status.into(),
-            tooltip,
             reduce_motion: state.config.reduce_motion,
             can_connect,
         }

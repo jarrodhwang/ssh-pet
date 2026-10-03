@@ -16,7 +16,7 @@ test('both surfaces recover when the native core is still starting', async ({ pa
   await expect(page.getByRole('heading', { name: 'Connections', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0);
   await page.goto('/?window=pet');
-  await expect(page.locator('.pet-tooltip')).toHaveText('Double-click → Zbook Studio');
+  await expect(page.locator('.pet-tooltip')).toHaveCount(0);
 });
 
 test('add, edit, favorite, and remove a connection without losing the original', async ({ page }) => {
@@ -179,7 +179,7 @@ test('pet mode has a transparent background and an accessible launcher', async (
   await page.goto('/?window=pet');
   await expect(page.getByRole('button', { name: /Droplet: open connections/ })).toBeVisible();
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-  await expect(page.locator('.pet-tooltip')).toHaveText('Double-click → Zbook Studio');
+  await expect(page.locator('.pet-tooltip')).toHaveCount(0);
 });
 
 test('dragging the pet does not accidentally open the launcher', async ({ page, ipcRequests }) => {

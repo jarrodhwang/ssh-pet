@@ -98,7 +98,6 @@ pub struct PetView {
     pub name: String,
     pub theme: crate::pets::PetTheme,
     pub mood: PetMood,
-    pub tooltip: String,
     pub status: String,
     pub reduce_motion: bool,
     pub can_connect: bool,
